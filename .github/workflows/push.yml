@@ -5,6 +5,11 @@ on:
     - cron: '30 1 * * *'   # 北京 09:30 = UTC 01:30，发当天任务卡 + 话术
     - cron: '0 9 * * *'    # 北京 17:00 = UTC 09:00，发明日群发预告
   workflow_dispatch:        # 允许在 Actions 页面手动点一下运行（调试用）
+    inputs:
+      mode:
+        description: 'push=发当天内容 / remind=发明日预告'
+        required: false
+        default: 'push'
 
 jobs:
   push:
@@ -22,8 +27,15 @@ jobs:
           WEBHOOK: ${{ secrets.WEBHOOK }}
           TZ: Asia/Shanghai
         run: |
-          # 17:00(UTC 09:00) 那条定时 → 预告模式；其余（09:30 / 手动）→ 发送当天
-          if [ "${{ github.event.schedule }}" = "0 9 * * *" ]; then
+          # 优先级：手动输入的 mode > 定时规则判断
+          if [ -n "${{ github.event.inputs.mode }}" ]; then
+            if [ "${{ github.event.inputs.mode }}" = "remind" ]; then
+              MODE="--remind"
+            else
+              MODE=""
+            fi
+          elif [ "${{ github.event.schedule }}" = "0 9 * * *" ]; then
+            # 17:00(UTC 09:00) 那条定时 → 预告模式
             MODE="--remind"
           else
             MODE=""
