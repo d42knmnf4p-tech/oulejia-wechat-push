@@ -1,0 +1,10 @@
+# 不进仓库的敏感/本地文件
+.workbuddy/
+push/config.json
+push/push.log
+push/_channel_test.txt
+*.zip
+
+# Python 缓存
+__pycache__/
+*.pyc

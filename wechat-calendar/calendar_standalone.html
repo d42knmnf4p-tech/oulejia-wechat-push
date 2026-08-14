@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>欧乐家 · 微信营销内容日历</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#F5F6F8; --card:#FFFFFF; --line:#E5E7EB; --line2:#F1F2F4;
+  --tx:#1F2328; --tx2:#5B6470; --tx3:#8A94A0;
+  --brand:#C8511B; --brand-l:#FDF3EE;
+  --wx:#07C160; --wx-bubble:#95EC69;
+  --daily:#3B82F6; --festival:#EF4444; --case:#10B981; --promo:#F59E0B;
+  --shadow:0 1px 3px rgba(16,24,40,.06),0 1px 2px rgba(16,24,40,.04);
+  --shadow-lg:0 12px 32px rgba(16,24,40,.12);
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:var(--bg); color:var(--tx); font-size:14px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- topbar ---------- */
+.topbar{
+  background:var(--card); border-bottom:1px solid var(--line);
+  padding:16px 28px; display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:50;
+}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{
+  width:42px;height:42px;border-radius:11px;flex:none;
+  background:linear-gradient(135deg,#D9601F,#B23F12);
+  color:#fff;font-size:20px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(200,81,27,.28);
+}
+.brand-txt h1{font-size:17px;font-weight:650;letter-spacing:-.2px}
+.brand-txt p{font-size:12.5px;color:var(--tx3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.push-status{
+  display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--tx2);
+  background:var(--line2);padding:6px 12px;border-radius:20px;
+}
+.push-status .dot{width:7px;height:7px;border-radius:50%;background:#CBD2D9}
+.push-status.on{background:#E8F9EF;color:#047A43}
+.push-status.on .dot{background:var(--wx);box-shadow:0 0 0 3px rgba(7,193,96,.16)}
+.btn-ghost{
+  background:var(--card);border:1px solid var(--line);color:var(--tx2);
+  padding:7px 14px;border-radius:8px;font-size:13px;cursor:pointer;
+  font-family:inherit;transition:.15s;
+}
+.btn-ghost:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-l)}
+.btn-ghost.sm{padding:5px 11px;font-size:12.5px}
+
+/* ---------- stats ---------- */
+.stats{padding:20px 28px 0;display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.stat{
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:15px 17px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent,var(--line))}
+.stat .v{font-size:25px;font-weight:680;letter-spacing:-.6px;line-height:1.15}
+.stat .l{font-size:12.5px;color:var(--tx3);margin-top:3px}
+.stat .s{font-size:11.5px;color:var(--tx3);margin-top:6px}
+.bar{height:4px;background:var(--line2);border-radius:2px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:2px;background:var(--wx);transition:.4s}
+
+/* ---------- tabs ---------- */
+.tabs{
+  padding:20px 28px 0;display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--line);margin-bottom:0;position:relative;
+}
+.tab{
+  background:none;border:none;padding:9px 15px;font-size:13.5px;color:var(--tx2);
+  cursor:pointer;font-family:inherit;border-radius:8px 8px 0 0;
+  border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;
+}
+.tab:hover{color:var(--tx);background:var(--line2)}
+.tab.active{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+.legend{margin-left:auto;display:flex;gap:14px;padding-bottom:9px;flex-wrap:wrap}
+.lg{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--tx2);cursor:default}
+.lg i{width:9px;height:9px;border-radius:3px;flex:none}
+.lg b{font-weight:600;color:var(--tx3);font-size:11.5px}
+
+main{padding:22px 28px 60px}
+.view{display:none}
+.view.active{display:block}
+
+/* ---------- calendar ---------- */
+.cal-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.cal-head h2{font-size:19px;font-weight:650;min-width:150px;letter-spacing:-.3px}
+.nav-btn{
+  width:30px;height:30px;border-radius:8px;border:1px solid var(--line);
+  background:var(--card);cursor:pointer;font-size:17px;color:var(--tx2);
+  display:flex;align-items:center;justify-content:center;transition:.15s;
+}
+.nav-btn:hover{border-color:var(--brand);color:var(--brand)}
+.weekdays{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:10px;
+}
+.weekdays span{
+  text-align:center;font-size:12.5px;color:var(--tx3);font-weight:500;padding:4px 0;
+}
+.weekdays .hl{color:var(--brand);font-weight:650}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+.cell{
+  background:var(--card);border:1px solid var(--line);border-radius:11px;
+  min-height:112px;padding:9px 10px;position:relative;transition:.15s;
+}
+.cell.out{background:#FAFBFC;border-color:var(--line2)}
+.cell.out .dn{color:#C9CFD6}
+.cell.fri{border-color:#EADCD4;background:linear-gradient(180deg,#FFFCFA,#fff)}
+.cell.today{border-color:var(--brand);box-shadow:0 0 0 3px rgba(200,81,27,.1)}
+.dn{font-size:13px;font-weight:600;color:var(--tx2);display:flex;align-items:center;gap:5px}
+.dn .lunar{font-size:10.5px;color:var(--tx3);font-weight:400}
+.today .dn{color:var(--brand)}
+.evt{
+  margin-top:7px;border-radius:8px;padding:7px 8px;cursor:pointer;
+  border-left:3px solid var(--c);background:var(--cb);transition:.15s;
+}
+.evt:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.evt .et{
+  font-size:11.8px;font-weight:600;color:var(--tx);line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.evt .eb{display:flex;align-items:center;justify-content:space-between;margin-top:5px}
+.evt .etime{font-size:10.5px;color:var(--tx3)}
+.evt .est{font-size:10px;padding:1px 5px;border-radius:4px;font-weight:600}
+.est.done{background:#DCFCE7;color:#15803D}
+.est.skip{background:#F1F2F4;color:#8A94A0}
+.est.todo{background:#FEF3C7;color:#B45309}
+.evt.is-extra{border-left-style:dashed}
+.badge-extra{
+  font-size:9.5px;background:#FFF;border:1px solid var(--line);color:var(--tx3);
+  padding:0 4px;border-radius:3px;margin-left:4px;font-weight:500;
+}
+
+/* ---------- list ---------- */
+.filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.filter-bar input,.filter-bar select{
+  padding:8px 13px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;
+  font-family:inherit;background:var(--card);color:var(--tx);outline:none;
+}
+.filter-bar input{flex:1;min-width:220px}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--brand)}
+.month-sep{
+  font-size:13px;font-weight:650;color:var(--tx2);margin:22px 0 11px;
+  display:flex;align-items:center;gap:10px;
+}
+.month-sep::after{content:"";flex:1;height:1px;background:var(--line)}
+.month-sep:first-child{margin-top:0}
+.row{
+  background:var(--card);border:1px solid var(--line);border-radius:11px;
+  padding:14px 16px;margin-bottom:9px;display:flex;align-items:center;gap:15px;
+  cursor:pointer;transition:.15s;box-shadow:var(--shadow);
+}
+.row:hover{border-color:#D6DBE1;transform:translateX(2px)}
+.row .rd{
+  width:56px;flex:none;text-align:center;padding-right:14px;border-right:1px solid var(--line2);
+}
+.row .rd .dd{font-size:19px;font-weight:680;letter-spacing:-.5px}
+.row .rd .dw{font-size:11px;color:var(--tx3);margin-top:1px}
+.row .rc{flex:1;min-width:0}
+.row .rt{font-size:14px;font-weight:600;margin-bottom:3px}
+.row .rh{font-size:12.5px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .rr{display:flex;align-items:center;gap:9px;flex:none}
+.cat-chip{
+  display:inline-block;font-size:11.5px;padding:2.5px 9px;border-radius:6px;font-weight:600;
+  background:var(--cb);color:var(--c);
+}
+
+/* ---------- guide ---------- */
+.g-card{
+  background:var(--card);border:1px solid var(--line);border-radius:13px;
+  padding:24px 26px;margin-bottom:16px;box-shadow:var(--shadow);
+}
+.g-card h3{font-size:16px;font-weight:650;margin-bottom:4px}
+.g-card .sub{font-size:12.5px;color:var(--tx3);margin-bottom:18px}
+.rule{display:flex;gap:15px;padding:13px 0;border-bottom:1px solid var(--line2)}
+.rule:last-child{border-bottom:none;padding-bottom:0}
+.rule .rk{
+  flex:none;width:88px;font-size:13px;font-weight:650;color:var(--brand);
+}
+.rule .rv{font-size:13.5px;color:var(--tx2);line-height:1.65}
+.forbid{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
+.forbid span{
+  font-size:12.5px;background:#FEF2F2;color:#B91C1C;border:1px solid #FEE2E2;
+  padding:5px 11px;border-radius:7px;
+}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:4px}
+.pcard{border:1px solid var(--line);border-radius:11px;padding:15px 16px;background:#FCFCFD}
+.pcard .pn{font-size:13.5px;font-weight:600;margin-bottom:6px}
+.pcard .pp{font-size:23px;font-weight:700;color:var(--brand);letter-spacing:-.5px}
+.pcard .pp small{font-size:12px;font-weight:500;color:var(--tx3);margin-left:2px}
+.pcard .ps{font-size:12px;color:var(--tx3);margin-top:8px;line-height:1.6}
+.svc{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
+.svc span{
+  font-size:12.5px;background:#F0FDF4;color:#15803D;border:1px solid #DCFCE7;
+  padding:5px 11px;border-radius:7px;
+}
+.cat-explain{display:grid;grid-template-columns:repeat(2,1fr);gap:13px;margin-top:4px}
+.ce{border:1px solid var(--line);border-left-width:3px;border-radius:9px;padding:13px 15px}
+.ce .cen{font-size:13.5px;font-weight:650;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.ce .cec{font-size:11.5px;color:var(--tx3);font-weight:500}
+.ce .ced{font-size:12.5px;color:var(--tx2);line-height:1.6}
+
+/* ---------- drawer ---------- */
+.drawer-mask{
+  position:fixed;inset:0;background:rgba(16,24,40,.35);opacity:0;visibility:hidden;
+  transition:.22s;z-index:98;backdrop-filter:blur(2px);
+}
+.drawer-mask.on{opacity:1;visibility:visible}
+.drawer{
+  position:fixed;top:0;right:0;bottom:0;width:520px;max-width:94vw;background:var(--bg);
+  transform:translateX(102%);transition:transform .26s cubic-bezier(.32,.72,0,1);
+  z-index:99;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);
+}
+.drawer.on{transform:translateX(0)}
+.drawer-head{
+  background:var(--card);border-bottom:1px solid var(--line);padding:20px 24px;
+  display:flex;justify-content:space-between;align-items:flex-start;gap:14px;
+}
+.drawer-head h3{font-size:17px;font-weight:650;margin-top:8px;letter-spacing:-.2px}
+.d-meta{font-size:12.5px;color:var(--tx3);margin-top:4px}
+.close{
+  background:none;border:none;font-size:26px;color:var(--tx3);cursor:pointer;
+  line-height:1;padding:0 4px;flex:none;
+}
+.close:hover{color:var(--tx)}
+.drawer-body{flex:1;overflow-y:auto;padding:18px 24px 40px}
+.block{margin-bottom:20px}
+.block-h{
+  font-size:12.5px;font-weight:650;color:var(--tx3);margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between;
+  letter-spacing:.3px;
+}
+.btn-copy{
+  background:var(--wx);color:#fff;border:none;padding:5px 13px;border-radius:7px;
+  font-size:12px;cursor:pointer;font-family:inherit;font-weight:500;transition:.15s;
+}
+.btn-copy:hover{background:#06AD56}
+.btn-copy.ok{background:#15803D}
+
+/* 微信预览 */
+.wx-preview{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#EDEDED}
+.wx-bar{
+  background:#F7F7F7;border-bottom:1px solid #E3E3E3;padding:9px 14px;
+  text-align:center;font-size:13px;font-weight:500;color:#333;
+}
+.wx-body{padding:14px 12px 18px;min-height:120px}
+.wx-time{text-align:center;font-size:11px;color:#9B9B9B;margin-bottom:12px}
+.wx-row{display:flex;gap:9px;align-items:flex-start;justify-content:flex-end}
+.wx-avatar{
+  width:34px;height:34px;border-radius:5px;background:var(--brand);color:#fff;
+  font-size:13px;display:flex;align-items:center;justify-content:center;flex:none;order:2;
+}
+.wx-bubble{
+  background:var(--wx-bubble);border-radius:5px;padding:10px 13px;position:relative;
+  font-size:14.5px;line-height:1.72;color:#000;white-space:pre-wrap;word-break:break-word;
+  max-width:330px;order:1;
+}
+.wx-bubble::after{
+  content:"";position:absolute;right:-5px;top:11px;width:0;height:0;
+  border:5px solid transparent;border-left-color:var(--wx-bubble);border-right:0;
+}
+
+.raw{
+  background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;
+  font-family:inherit;font-size:13.5px;line-height:1.75;white-space:pre-wrap;
+  color:var(--tx);word-break:break-word;
+}
+.asset{
+  background:#FFFBEB;border:1px solid #FDE68A;border-radius:9px;padding:11px 14px;
+  font-size:13px;color:#92400E;
+}
+.tips{list-style:none}
+.tips li{
+  background:var(--card);border:1px solid var(--line);border-radius:9px;
+  padding:11px 14px;margin-bottom:8px;font-size:13px;color:var(--tx2);line-height:1.65;
+  position:relative;padding-left:34px;
+}
+.tips li::before{
+  content:"›";position:absolute;left:15px;top:9px;color:var(--brand);
+  font-size:16px;font-weight:700;
+}
+.tips li.key{background:#FFF7ED;border-color:#FED7AA}
+.status-btns{display:flex;gap:9px;margin-bottom:11px}
+.sbtn{
+  flex:1;padding:10px;border:1px solid var(--line);background:var(--card);
+  border-radius:9px;cursor:pointer;font-size:13px;font-family:inherit;color:var(--tx2);
+  transition:.15s;
+}
+.sbtn:hover{border-color:#C9CFD6}
+.sbtn.on{background:var(--tx);color:#fff;border-color:var(--tx)}
+.sbtn.done.on{background:var(--wx);border-color:var(--wx)}
+.sbtn.skip.on{background:#8A94A0;border-color:#8A94A0}
+.note-wrap textarea{
+  width:100%;min-height:76px;border:1px solid var(--line);border-radius:9px;
+  padding:11px 13px;font-family:inherit;font-size:13px;resize:vertical;outline:none;
+  background:var(--card);color:var(--tx);line-height:1.6;
+}
+.note-wrap textarea:focus{border-color:var(--brand)}
+
+.toast{
+  position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--tx);color:#fff;padding:11px 22px;border-radius:9px;font-size:13.5px;
+  opacity:0;visibility:hidden;transition:.22s;z-index:200;box-shadow:var(--shadow-lg);
+}
+.toast.on{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:1180px){
+  .stats{grid-template-columns:repeat(3,1fr)}
+  .pgrid,.cat-explain{grid-template-columns:1fr}
+  .legend{width:100%;margin-left:0;padding:0 0 10px}
+}
+@media(max-width:760px){
+  .topbar{flex-direction:column;align-items:flex-start;gap:12px}
+  .stats{grid-template-columns:repeat(2,1fr);padding:16px 16px 0}
+  .tabs,main{padding-left:16px;padding-right:16px}
+  .cell{min-height:78px;padding:6px}
+  .evt .et{-webkit-line-clamp:1}
+}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">欧</div>
+    <div class="brand-txt">
+      <h1>欧乐家 · 微信营销内容日历</h1>
+      <p>统一话术 · 每周五 10:00 准点触达 · 面向 50-60 岁客群</p>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="push-status on" id="pushStatus">
+      <span class="dot"></span><span id="pushTxt">推送通道已配置 · 自动化每日 09:30</span>
+    </div>
+    <button class="btn-ghost" id="btnExport">导出话术</button>
+  </div>
+</header>
+
+<section class="stats" id="stats"></section>
+
+<nav class="tabs">
+  <button class="tab active" data-view="calendar">📅 日历视图</button>
+  <button class="tab" data-view="list">📋 内容清单</button>
+  <button class="tab" data-view="guide">📖 执行铁律</button>
+  <div class="legend" id="legend"></div>
+</nav>
+
+<main>
+  <!-- 日历视图 -->
+  <section id="view-calendar" class="view active">
+    <div class="cal-head">
+      <button class="nav-btn" id="prevM">‹</button>
+      <h2 id="monthLabel"></h2>
+      <button class="nav-btn" id="nextM">›</button>
+      <button class="btn-ghost sm" id="todayBtn">回到本月</button>
+    </div>
+    <div class="weekdays">
+      <span>一</span><span>二</span><span>三</span><span>四</span>
+      <span class="hl">五</span><span>六</span><span>日</span>
+    </div>
+    <div class="grid" id="calGrid"></div>
+  </section>
+
+  <!-- 清单视图 -->
+  <section id="view-list" class="view">
+    <div class="filter-bar">
+      <input type="text" id="searchBox" placeholder="搜索标题或内容关键词…">
+      <select id="filterCat">
+        <option value="">全部板块</option>
+      </select>
+      <select id="filterStatus">
+        <option value="">全部状态</option>
+        <option value="done">已发送</option>
+        <option value="todo">待发送</option>
+        <option value="skip">已跳过</option>
+      </select>
+    </div>
+    <div id="listWrap"></div>
+  </section>
+
+  <!-- 指南视图 -->
+  <section id="view-guide" class="view">
+    <div id="guideWrap"></div>
+  </section>
+</main>
+
+<!-- 详情抽屉 -->
+<div class="drawer-mask" id="mask"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div>
+      <span class="cat-chip" id="dCat"></span>
+      <h3 id="dTitle"></h3>
+      <p class="d-meta" id="dMeta"></p>
+    </div>
+    <button class="close" id="dClose">×</button>
+  </div>
+
+  <div class="drawer-body">
+    <div class="block">
+      <div class="block-h">微信内实际效果预览</div>
+      <div class="wx-preview">
+        <div class="wx-bar"><span id="wxName">客户</span></div>
+        <div class="wx-body">
+          <div class="wx-time" id="wxTime"></div>
+          <div class="wx-row">
+            <div class="wx-avatar">销</div>
+            <div class="wx-bubble" id="wxBubble"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-h">
+        话术原文
+        <button class="btn-copy" id="btnCopy">复制话术</button>
+      </div>
+      <pre class="raw" id="dRaw"></pre>
+    </div>
+
+    <div class="block" id="assetBlock">
+      <div class="block-h">配图要求</div>
+      <div class="asset" id="dAsset"></div>
+    </div>
+
+    <div class="block">
+      <div class="block-h">发送要点（销售必读）</div>
+      <ul class="tips" id="dTips"></ul>
+    </div>
+
+    <div class="block">
+      <div class="block-h">发布状态</div>
+      <div class="status-btns">
+        <button class="sbtn" data-st="todo">待发送</button>
+        <button class="sbtn done" data-st="done">✓ 已发送</button>
+        <button class="sbtn skip" data-st="skip">跳过本条</button>
+      </div>
+      <div class="note-wrap">
+        <textarea id="dNote" placeholder="执行备注：客户反馈、回复情况、成交线索…"></textarea>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script>window.__DATA__ = {"meta": {"brand": "重庆欧乐家厨电", "owner": "郑涛", "audience": "50-60岁为主的中老年家庭客户", "team_size": 4, "cadence": "三条线职责清晰、互不重合：① 周五主推——每周五 10:00 发送，但仅在「不与节气/节假日冲突」的周五发送；内容为日常关怀/安装效果/活动优惠的固定轮换，绝不含任何节气或节日名称；② 节气关怀——24 节气一律在节气当天 09:30 发送，顺时关怀、绝不提前延后；③ 节假日问候——中国所有节假日（含传统节日/法定/现代节日）一律在节日当天 09:30 发送，绝不提前、绝不延后。若某周五恰逢节气或节假日，该周五主推自动让位，当天只发节气/节假日内容，绝不双发、绝不合并。", "range": "2026-08-14 ~ 2027-08-23", "total": 85, "generated_at": "2026-08-14", "products": [{"n": "一级能效猛火燃气灶", "p": 399, "sell": "钢化玻璃面板 · 鸳鸯猛火 · 5.2kW · 熄火+童锁双保护 · 全铜火盖"}, {"n": "大吸力智能抽油烟机", "p": 699, "sell": "高温热清洗 · 一级能效 · 大吸力 · 高油脂分离率"}, {"n": "13升恒温智能热水器", "p": 599, "sell": "全铜水箱 · 低压启动 · 出水恒温不忽冷忽热"}], "service": ["先安装、满意再付款", "自有安装队，非外包", "重庆主城当天下单当天上门，半天装完", "四免：送货/拆旧/安装/清理台面", "核心产品 8 年质保", "旧机以旧换新抵扣"]}, "cats": {"daily": {"name": "日常问候", "color": "#3B82F6", "desc": "节气养生、用气安全、生活关怀。全年占比最高，是维系关系的基本盘，绝不带价格。"}, "solar": {"name": "节气关怀", "color": "#0EA5E9", "desc": "24 节气当天发送，顺时关怀（通风/饮食/添衣/用气安全），用户提供的专属措辞，零推销。"}, "festival": {"name": "节假日问候", "color": "#EF4444", "desc": "中国所有节假日+传统节日+现代节日祝福。纯祝福零推销，老年客群认同感最强，一个节日都不能漏。"}, "case": {"name": "安装效果", "color": "#10B981", "desc": "真实装机实拍、服务故事、口碑case。用事实建立信任，必须配真实图片。"}, "promo": {"name": "活动优惠", "color": "#F59E0B", "desc": "价格与活动信息。全年严格控制在20%以内，超了客户就屏蔽你了。"}}, "guide": {"title": "50-60岁客群 · 微信沟通铁律", "rules": [{"k": "称呼先行", "v": "每条开头必须换成真实称呼：张哥 / 李孃孃 / 王叔。群发感是第一杀手，一个「亲」就废掉整条。"}, {"k": "断句换行", "v": "每行不超过 15 字，多用空行。老花眼看不了大段文字，密密麻麻的直接划走。"}, {"k": "表情克制", "v": "每条 3-6 个，用具象温暖类（☀️🍲🌷❤️🙏），禁用年轻人梗表情（🤡💀🫠）和网络缩写。"}, {"k": "不催不逼", "v": "禁用「限时」「仅剩」「抢」「最后一天」。改用「不着急」「您先了解」「需要了招呼一声」。"}, {"k": "安全牌最重", "v": "用气安全 / 洗澡安全 / 清洗技巧这类内容，回复率和转发率远高于促销，还免费建立专业形象。"}, {"k": "真人落款", "v": "结尾必须署销售真名（——欧乐家 小李），不要署公司名。客户认人不认品牌。"}, {"k": "本地方言", "v": "轻量使用：安逸、要得、莫、孃孃、娃儿些、巷子头。每条 1-2 个即可，多了显做作。"}, {"k": "价格铁律", "v": "燃气灶 399 / 油烟机 699 / 热水器 599，四免、先装后付、8年质保、旧机抵扣。数字一个都不能错。"}, {"k": "发完不追", "v": "客户没回不要补第二条。下周五自然还有一条，节奏比单次转化重要。"}, {"k": "回复优先", "v": "有客户回复，销售必须 30 分钟内响应。周五 10:00-12:00 与节假日 09:30-11:00 是必须在线的时段。"}], "forbidden": ["亲", "小哥哥/小姐姐", "yyds/绝绝子/家人们", "限时秒杀 / 仅剩X席", "全网最低 / 史上最便宜", "夺命连环问（在吗？在吗？）", "长语音（客户不方便听）", "大段无换行文字"]}, "items": [{"id": "FA01", "date": "2026-08-14", "time": "10:00", "kind": "friday", "cat": "daily", "title": "燃气软管自查", "hook": "安全牌，提醒不 preach", "content": "{称呼}，早上好 🔧\n\n厨房安全小提示：\n燃气软管别看它不起眼，\n用到两年会发硬、起裂纹。\n\n有空低头瞅一眼，\n心里踏实得多 🙂\n\n——欧乐家 {销售名}", "tips": ["安全牌，回复率高", "提醒为主，不评价客户"], "asset": ""}, {"id": "FA02", "date": "2026-08-21", "time": "10:00", "kind": "friday", "cat": "case", "title": "厨房焕新 · 装机实拍", "hook": "安装前后效果对比", "content": "{称呼}，早上好 🌤️\n\n昨天在{小区名}装了一套厨电，\n跟您分享下前后的变化——\n\n装之前厨房局促，\n原来的灶用了些年头，\n做起饭来不顺手。\n\n师傅把旧灶拆了、\n台面擦净、旧机带走，\n新机一装好，\n整个灶台都亮堂了。\n\n拍了两张图，\n您瞅瞅前后对比 📷\n\n我们一直是自己的安装队，\n装完您验收满意了再付钱，不慌 🙂\n\n——欧乐家 {销售名}", "tips": ["配 2 张真实装机图(前/后)", "{小区名} 换真实小区", "以安装前后效果为主，不评价客户厨房新旧"], "asset": "装机前后对比图 ×2"}, {"id": "S01", "date": "2026-08-23", "time": "09:30", "kind": "extra", "cat": "solar", "title": "处暑", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，处暑安康 🍃\n\n暑气慢慢退了，\n天凉快下来，\n做饭也舒服多了 😊\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "纯关怀"], "asset": ""}, {"id": "FA03", "date": "2026-08-28", "time": "10:00", "kind": "friday", "cat": "promo", "title": "高温季 · 热水器专场", "hook": "老热水器痛点切入", "content": "{称呼}，早上好 ☀️\n\n重庆这天气温冲到40度，\n洗澡全靠热水器撑着。\n\n老机子用了七八年，\n忽冷忽热、打不燃火，\n大热天洗澡最是遭罪。\n\n我们13升恒温 599，\n全铜水箱、低压也打得燃，\n出水不忽冷忽热 💧\n\n送货 · 拆旧 · 安装 · 清台面\n四样全免，装好满意了再付钱 ✔\n\n您先了解，不急 🙂\n\n——欧乐家 {销售名}", "tips": ["单品聚焦只推热水器", "突出老机子痛点，不贴年龄标签"], "asset": ""}, {"id": "FA04", "date": "2026-09-04", "time": "10:00", "kind": "friday", "cat": "daily", "title": "火苗变红就该清炉头", "hook": "保养干货，超出常识", "content": "{称呼}，早上好 🔥\n\n正常火苗是蓝的。\n要是变红、变黄、还噗噗响，\n是炉头(分火器)积碳了。\n\n炉头是能取下来的，\n拿下来温水泡一泡、\n清水冲净、火孔通一通，\n擦干装回去就好，\n火又蓝又稳，\n省气还烧得透 🙂\n\n——欧乐家 {销售名}", "tips": ["保养干货", "炉头/分火器是灶具可拆件，自己就能弄，安全DIY"], "asset": ""}, {"id": "S02", "date": "2026-09-07", "time": "09:30", "kind": "extra", "cat": "solar", "title": "白露", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，白露安康 🌕\n\n夜里温差大，\n睡前关好厨房窗，\n潮气就不容易返上来 🙂\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞（睡前关窗防潮）", "厨房相关提醒"], "asset": ""}, {"id": "FA05", "date": "2026-09-11", "time": "10:00", "kind": "friday", "cat": "case", "title": "装机实拍 · 软管隐患", "hook": "安装前隐患 → 安装后解除", "content": "{称呼}，早上好 ☀️\n\n前两天装机，\n有个细节想跟您分享——\n\n去{小区名}一家拆旧灶，\n顺手看了眼燃气软管，\n好家伙，管子发硬、\n还起了裂纹。\n\n这种万一漏气，\n可不是小事。\n\n当场给换了一根新的，\n隐患也就消了。\n\n装厨电这些年，\n这种隐患见得不少，\n多留个心总没错 🙂\n\n——欧乐家 {销售名}", "tips": ["以隐患→解除为主线，只讲过程", "不提免费/增值服务", "可不配图"], "asset": ""}, {"id": "FA06", "date": "2026-09-18", "time": "10:00", "kind": "friday", "cat": "promo", "title": "秋季焕新 · 三件套", "hook": "三件套报价 + 四免 + 先装后付", "content": "{称呼}，早上好 🍂\n\n九月了，天要开始凉了~\n这个月我们店里做个秋季焕新：\n\n🔥 一级能效猛火燃气灶 399\n💨 大吸力抽油烟机 699\n💧 13升恒温热水器 599\n\n还是老规矩：\n免费送货 · 免费拆旧\n免费安装 · 免费清理台面\n四样都不收钱\n装好您满意了再付款\n核心件保 8 年 ✔\n\n旧灶旧机还能抵扣一部分~\n\n不着急，您先了解着，\n啥时候想换了跟我说一声就行 🙂\n\n——欧乐家 {销售名}", "tips": ["价格铁律 399/699/599", "结尾必须'不着急'"], "asset": ""}, {"id": "S03", "date": "2026-09-23", "time": "09:30", "kind": "extra", "cat": "solar", "title": "秋分", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，秋分安康 🍁\n\n秋意正浓，\n正是吃鲜货的好时候，\n多做点应季菜贴贴秋膘 🥗\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "应季饮食 · 贴秋膘"], "asset": ""}, {"id": "H04b", "date": "2026-09-25", "time": "09:30", "kind": "extra", "cat": "festival", "title": "中秋节（当天加发）", "hook": "节假日当天 · 纯祝福", "content": "{称呼}，中秋快乐 🌕\n\n灯火可亲，\n岁岁安稳，\n事事都圆满 ❤️\n\n——欧乐家 {销售名}", "tips": ["用户提供的节日措辞（已去'家人'）", "团圆主题，零产品"], "asset": ""}, {"id": "H04", "date": "2026-10-01", "time": "09:30", "kind": "extra", "cat": "festival", "title": "国庆节（当天加发）", "hook": "节假日当天 · 纯祝福", "content": "{称呼}，国庆快乐 🇨🇳\n\n难得长假，\n怎么舒服怎么来，\n好好放松一下 😊\n\n——欧乐家 {销售名}", "tips": ["用户提供的节日措辞", "家国祝福，零产品"], "asset": ""}, {"id": "FA07", "date": "2026-10-02", "time": "10:00", "kind": "friday", "cat": "daily", "title": "厨房安全三句", "hook": "好记好用", "content": "{称呼}，早上好 🙏\n\n厨房安全小提示：\n▪ 人离厨房火要熄\n▪ 用气时窗留条缝\n▪ 闻着怪味先开窗\n\n这几条记在心里，\n比啥都管用 🙂\n\n——欧乐家 {销售名}", "tips": ["安全牌", "实用好记"], "asset": ""}, {"id": "S04", "date": "2026-10-08", "time": "09:30", "kind": "extra", "cat": "solar", "title": "寒露", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，寒露安康 🍂\n\n降温降得快，\n早晚出门多添件衣裳，\n家里也记得关好窗 🧥\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "添衣保暖"], "asset": ""}, {"id": "FA08", "date": "2026-10-09", "time": "10:00", "kind": "friday", "cat": "case", "title": "油烟机以旧换新 · 对比", "hook": "换新前后强对比", "content": "{称呼}，早上好 ☕\n\n给您看个昨天的活路 📷\n\n{小区名}一户的油烟机，\n用了十来年，\n油腻得推都推不动，\n抽力基本没得了。\n\n换了个新的大吸力，\n炒海椒都不呛人了。\n\n装完台面擦净、旧机带走，\n利利索索的。\n\n拍了张前后对比，\n您瞅瞅 📷\n\n——欧乐家 {销售名}", "tips": ["旧机油污特写 + 新机成品图", "'炒海椒都不呛人'强共鸣", "以安装前后效果为主"], "asset": "旧机油污特写 + 新机成品图 ×2"}, {"id": "FA09", "date": "2026-10-16", "time": "10:00", "kind": "friday", "cat": "daily", "title": "灶打不燃先看电池", "hook": "小知识，很多人不知道", "content": "{称呼}，早上好 🔋\n\n灶突然打不燃火，\n先别急着当机子坏了——\n多半是点火电池没电了。\n\n脉冲点火靠两节电池，\n电力弱了火就打不燃，\n该换时就换，\n不值当为这个换整台灶 🙂\n\n——欧乐家 {销售名}", "tips": ["实用干货", "提醒为主，不教客户自己换"], "asset": ""}, {"id": "S05", "date": "2026-10-23", "time": "09:30", "kind": "extra", "cat": "solar", "title": "霜降", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，霜降安康 ❄️\n\n天气转冷，\n平时多喝热汤热水，\n身子暖乎乎的更舒服 🍲\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "热饮关怀"], "asset": ""}, {"id": "FA10", "date": "2026-10-30", "time": "10:00", "kind": "friday", "cat": "daily", "title": "灶具电池两年一换", "hook": "小保养大用处", "content": "{称呼}，早上好 🔋\n\n灶具点火靠那两节电池，\n一般一两年电力就弱了。\n\n火打不燃、老得按好几下，\n多半是电池的事，\n该换时就换就好 🙂\n\n——欧乐家 {销售名}", "tips": ["保养提醒", "提醒为主"], "asset": ""}, {"id": "FA11", "date": "2026-11-06", "time": "10:00", "kind": "friday", "cat": "daily", "title": "熄火保护要认准", "hook": "选购/换机安全知识点", "content": "{称呼}，早上好 ⚠️\n\n厨房安全小提示：\n下次换灶记得看熄火保护。\n\n汤一溢、火灭了，\n它自己就断气，\n人不在灶边也放心。\n\n早些年的灶不少没这功能，\n换的时候多留个心 🙂\n\n——欧乐家 {销售名}", "tips": ["安全知识点", "提醒为主不硬推"], "asset": ""}, {"id": "S06", "date": "2026-11-07", "time": "09:30", "kind": "extra", "cat": "solar", "title": "立冬", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，立冬安康 🧣\n\n入冬了天一天天冷，\n用热水的时候多，\n留意水管保暖 💧\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "水管保暖=热水器相关"], "asset": ""}, {"id": "FA12", "date": "2026-11-13", "time": "10:00", "kind": "friday", "cat": "case", "title": "雨天装机 · 实拍", "hook": "雨天照样上门 + 细节", "content": "{称呼}，早上好 ☔\n\n重庆这两天下雨，\n空气都是湿的。\n\n昨天在{小区名}装了整套厨电——\n师傅鞋套套起、地垫铺好，\n装完把地上水渍都擦干才走。\n\n雨天也照常上门，\n不误您做饭。\n\n拍了张现场图，\n您瞅瞅 📷\n\n——欧乐家 {销售名}", "tips": ["配 1 张装机现场图", "雨天服务细节，只讲过程"], "asset": "装机现场图 ×1"}, {"id": "FA13", "date": "2026-11-20", "time": "10:00", "kind": "friday", "cat": "daily", "title": "热水器排烟管要通室外", "hook": "用气安全盲区", "content": "{称呼}，早上好 💨\n\n厨房安全小提示：\n燃气热水器排气管，\n一定要伸到室外。\n\n接公共烟道、被堵住，\n废气排不出去很危险，\n装的时候我们都会查，\n您也留个心 🙏\n\n——欧乐家 {销售名}", "tips": ["安全盲区", "专业背书"], "asset": ""}, {"id": "S07", "date": "2026-11-22", "time": "09:30", "kind": "extra", "cat": "solar", "title": "小雪", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，小雪安康 ❄️\n\n气温走低，\n出门注意保暖，\n家里每天通会儿风换换气 🪟\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "通风换气"], "asset": ""}, {"id": "FA14", "date": "2026-11-27", "time": "10:00", "kind": "friday", "cat": "promo", "title": "暖冬焕新 · 三件套", "hook": "三件套 + 当天装 + 旧机抵扣", "content": "{称呼}，早上好 🍁\n\n十一月了，天冷得快~\n店里做个暖冬焕新，跟您说一声：\n\n🔥 猛火燃气灶 399\n💨 大吸力抽油烟机 699\n💧 13升恒温热水器 599\n\n三样一起换，师傅半天就装完，\n当天下单当天能上门（主城）🚚\n\n四免照旧：\n送货 · 拆旧 · 安装 · 清台面\n一分钱不收\n装好您验收满意了再付款 ✔\n核心件 8 年质保\n\n旧机子还能抵一部分钱~\n\n不打扰您了，\n需要的时候招呼一声就行 🙂\n\n——欧乐家 {销售名}", "tips": ["价格核对 399/699/599", "'不打扰您了'收尾"], "asset": ""}, {"id": "FA15", "date": "2026-12-04", "time": "10:00", "kind": "friday", "cat": "daily", "title": "闻到燃气味怎么办", "hook": "应急常识，救急", "content": "{称呼}，早上好 🚨\n\n真闻到燃气味：\n千万别开灯、别打电话，\n先开窗、关总阀，\n人到室外再拨电话。\n\n这几步记牢，\n关键时刻保平安 🙏\n\n——欧乐家 {销售名}", "tips": ["应急干货", "建立信任"], "asset": ""}, {"id": "S08", "date": "2026-12-07", "time": "09:30", "kind": "extra", "cat": "solar", "title": "大雪", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，大雪安康 🌨️\n\n天寒地冻，\n做饭开烟机时记得留一点窗，\n安全第一 💨\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "用气安全"], "asset": ""}, {"id": "H07b", "date": "2026-12-08", "time": "09:30", "kind": "extra", "cat": "festival", "title": "腊八节（当天加发）", "hook": "节假日当天 · 纯祝福", "content": "{称呼}，腊八安康 🥣\n\n过了腊八就是年，\n老习俗要喝碗腊八粥。\n\n豆子、红枣、桂圆熬一熬，\n暖胃又养人。\n\n灶上小火慢慢煨，\n年味儿就从这碗粥开始 🍲\n\n祝您：\n平安喜乐、来年顺遂 ❤️\n\n——欧乐家 {销售名}", "tips": ["传统节日，喝粥祈福，正向", "不提年龄，纯祝福"], "asset": ""}, {"id": "FA16", "date": "2026-12-11", "time": "10:00", "kind": "friday", "cat": "case", "title": "暑期装机 · 用水高峰", "hook": "热水器恒温场景", "content": "{称呼}，早上好 😊\n\n暑假里家里进出勤，\n厨房用水都多。\n\n昨天{小区名}一户，\n旧热水器忽冷忽热，\n洗澡都不安稳；\n\n换了我们13升恒温的，\n出水稳当，用着也省心。\n\n装完台面擦净、旧机带走，\n利利索索的。\n\n——欧乐家 {销售名}", "tips": ["配 1 张新机装好图", "前(旧机忽冷忽热)→后(恒温稳当)对比"], "asset": "新机装好图 ×1"}, {"id": "FA17", "date": "2026-12-18", "time": "10:00", "kind": "friday", "cat": "promo", "title": "年终回馈 · 排期预警", "hook": "年前装机排期紧张（合理紧迫感）", "content": "{称呼}，早上好 🎄\n\n十二月了，一年又要过完~\n\n我们做个年终回馈，\n也算谢谢这一年认识的每一位：\n\n🔥 燃气灶 399\n💨 油烟机 699\n💧 热水器 599\n\n年前是装机最挤的时候，\n越往后师傅排期越紧，\n想在过年前换好的，\n建议这个月就定下来 📅\n\n四免 + 先装后付 + 8年质保，\n老规矩不变 ✔\n\n您要是暂时不需要，\n就当我给您拜个早年 🙂\n\n——欧乐家 {销售名}", "tips": ["紧迫感来自'师傅排期'非'限时降价'", "'拜个早年'化解推销感"], "asset": ""}, {"id": "S09", "date": "2026-12-22", "time": "09:30", "kind": "extra", "cat": "solar", "title": "冬至", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，冬至安康 🥟\n\n冬至福至，\n天寒地冻的，\n吃点热乎的，\n暖暖和和过节 ❤️\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "重庆羊肉汤刚需"], "asset": ""}, {"id": "H21", "date": "2026-12-24", "time": "09:30", "kind": "extra", "cat": "festival", "title": "平安夜（当天加发）", "hook": "节假日当天 · 纯祝福", "content": "{称呼}，平安夜安顺 ✨\n\n愿岁岁安稳，\n夜夜安眠 🙏\n\n——欧乐家 {销售名}", "tips": ["用户提供的节日措辞（已去'家人'）", "平安祝福"], "asset": ""}, {"id": "H22", "date": "2026-12-25", "time": "09:30", "kind": "extra", "cat": "festival", "title": "圣诞节（当天加发）", "hook": "节假日当天 · 纯祝福", "content": "{称呼}，圣诞快乐 🎄\n\n愿日常舒心，\n万事都妥当 ❤️\n\n——欧乐家 {销售名}", "tips": ["用户提供的节日措辞", "顺遂祝福"], "asset": ""}, {"id": "H08b", "date": "2027-01-01", "time": "09:30", "kind": "extra", "cat": "festival", "title": "元旦（当天加发）", "hook": "节假日当天 · 纯祝福", "content": "{称呼}，元旦快乐 🎉\n\n新的一年开篇了，\n愿日常安稳，\n事事省心 ❤️\n\n——欧乐家 {销售名}", "tips": ["用户提供的节日措辞", "公历新年，正向祝福"], "asset": ""}, {"id": "S10", "date": "2027-01-05", "time": "09:30", "kind": "extra", "cat": "solar", "title": "小寒", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，小寒安康 🧣\n\n隆冬最冷的时候，\n出门裹严实，\n在家也多喝热水暖身子 💧\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "热水暖身"], "asset": ""}, {"id": "FA18", "date": "2027-01-08", "time": "10:00", "kind": "friday", "cat": "daily", "title": "铜火盖别用钢丝球刮", "hook": "保养误区纠正", "content": "{称呼}，早上好 🧽\n\n灶上铜火盖、炉架，\n别拿钢丝球狠刮——\n刮花了火孔就歪，\n火苗跟着跑偏。\n\n平时用软布擦就好 🙏\n\n——欧乐家 {销售名}", "tips": ["保养误区纠正", "提醒为主"], "asset": ""}, {"id": "FA19", "date": "2027-01-15", "time": "10:00", "kind": "friday", "cat": "case", "title": "装机实拍 · 顺手搭把手", "hook": "安装前隐患 → 安装后解除", "content": "{称呼}，早上好 ☕\n\n前两天装机有个小细节——\n\n一户灶台边瓷砖松了，\n平时不留意，\n一碰就晃。\n\n装机的时候顺手按紧了，\n隐患也就解除了。\n\n这种顺手的事儿，\n装的时候遇见就顺带弄了，\n不值当专门跑一趟。\n\n——欧乐家 {销售名}", "tips": ["以隐患→解除为主线，只讲过程", "安装时顺手搭把手(非随叫随到)", "可不配图"], "asset": ""}, {"id": "S11", "date": "2027-01-20", "time": "09:30", "kind": "extra", "cat": "solar", "title": "大寒", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，大寒安康 ❄️\n\n岁末天寒，\n忙年的时候也别忘歇一歇，\n保重身体最要紧 🙏\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "忙年勿过劳"], "asset": ""}, {"id": "FA20", "date": "2027-01-22", "time": "10:00", "kind": "friday", "cat": "daily", "title": "锅支架取下来泡洗", "hook": "保养小提醒", "content": "{称呼}，早上好 🍳\n\n灶上那几个锅支架，\n其实能整个取下来。\n\n油垢积久了火苗不稳，\n取下来弄干净，\n灶面都利索 🙂\n\n——欧乐家 {销售名}", "tips": ["保养小提醒", "温和表述"], "asset": ""}, {"id": "FA21", "date": "2027-01-29", "time": "10:00", "kind": "friday", "cat": "promo", "title": "年货季 · 老油烟机大考", "hook": "熏腊时段 → 老油烟机吃不消", "content": "{称呼}，早上好 🏮\n\n腊月了，\n这两天巷子头到处都是\n熏香肠的味道 😄\n\n说个实在的：\n每年这个时候，\n我们接到的油烟机报修最多——\n熏腊肉、炸酥肉、烧腊猪头，\n老油烟机确实吃不消。\n\n年前最后一波，跟您报个数：\n💨 大吸力抽油烟机 699\n🔥 猛火燃气灶 399\n💧 恒温热水器 599\n\n主城当天下单当天上门，\n半天装完，不耽误您办年货 🚚\n四免 + 先装后付 + 8年质保 ✔\n\n腊月二十以后\n师傅就排不动了，\n要弄的这几天跟我说一声 📅\n\n——欧乐家 {销售名}", "tips": ["真实痛点 + 真实截止", "重庆家家熏香肠场景命中"], "asset": ""}, {"id": "H08", "date": "2027-01-30", "time": "09:30", "kind": "extra", "cat": "festival", "title": "小年（当天加发）", "hook": "节假日当天 · 纯祝福", "content": "{称呼}，小年吉祥 🧧\n\n年味慢慢浓了，\n忙年别太操劳，\n慢慢来就好 😊\n\n——欧乐家 {销售名}", "tips": ["用户提供的节日措辞", "祭灶=卖灶场景，自然"], "asset": ""}, {"id": "S12", "date": "2027-02-04", "time": "09:30", "kind": "extra", "cat": "solar", "title": "立春", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，立春安康 🌱\n\n开春气温慢慢回升，\n日常开窗通风时\n留意早晚凉意，\n顺祝春安 🙂\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "通风+春安"], "asset": ""}, {"id": "H23", "date": "2027-02-05", "time": "09:30", "kind": "extra", "cat": "festival", "title": "除夕（当天加发）", "hook": "节假日当天 · 纯祝福", "content": "{称呼}，除夕快乐 🏮\n\n除夕安康，\n忙了一整年，\n今晚好好歇一歇，\n愿新的一年\n平平安安少烦心事 ❤️\n\n——欧乐家 {销售名}", "tips": ["用户提供的节日措辞（已去'陪家人'）", "一年最重要团圆夜"], "asset": ""}, {"id": "H09", "date": "2027-02-06", "time": "09:30", "kind": "extra", "cat": "festival", "title": "春节（当天加发 · 重点）", "hook": "节假日当天 · 纯祝福", "content": "{称呼}，新春快乐 🧧\n\n新春顺遂，\n愿日子过得\n踏实舒心 ❤️\n\n——欧乐家 {销售名}", "tips": ["用户提供的节日措辞（已去'阖家'）", "★一年一次拜年，缺席=关系断档"], "asset": ""}, {"id": "FA22", "date": "2027-02-12", "time": "10:00", "kind": "friday", "cat": "daily", "title": "热水器出水小知识", "hook": "科普 + 破冰钩子", "content": "{称呼}，早上好 💧\n\n洗澡水忽冷忽热，\n多半不是机子坏了，\n是进水滤网堵了。\n\n清理干净就能恢复，\n不是机子坏，\n别急着换新 🙂\n\n——欧乐家 {销售名}", "tips": ["科普", "只讲症状与结果，不教客户拆洗、不推师傅"], "asset": ""}, {"id": "S13", "date": "2027-02-18", "time": "09:30", "kind": "extra", "cat": "solar", "title": "雨水", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，雨水安康 💧\n\n雨水时节潮气渐重，\n家里厨柜角落多通通风，\n晴好天晒晒被褥更舒服 🛏️\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "防潮通风"], "asset": ""}, {"id": "FA23", "date": "2027-02-19", "time": "10:00", "kind": "friday", "cat": "case", "title": "新小区首装 · 实拍", "hook": "新交房批量装机", "content": "{称呼}，早上好 🏘️\n\n{小区名}新交房那批，\n这月装了五六户。\n\n装完台面擦净、旧机带走，\n利利索索的。\n\n新房子配新厨电，\n用着也舒心 🙂\n\n——欧乐家 {销售名}", "tips": ["配 1 张新机装好图", "新小区场景"], "asset": "新机装好图 ×1"}, {"id": "H10", "date": "2027-02-20", "time": "09:30", "kind": "extra", "cat": "festival", "title": "元宵节（当天加发）", "hook": "节假日当天 · 纯祝福", "content": "{称呼}，元宵快乐 🌕\n\n愿日子圆圆满满，\n琐事都顺顺当当 🥣\n\n——欧乐家 {销售名}", "tips": ["用户提供的节日措辞", "承接正月十五"], "asset": ""}, {"id": "FA24", "date": "2027-02-26", "time": "10:00", "kind": "friday", "cat": "daily", "title": "热水器也要除垢", "hook": "保养盲区", "content": "{称呼}，早上好 💧\n\n燃气热水器也要保养——\n水质硬的地方，\n水路结垢，恒温就稳不住。\n\n隔一两年做次除垢，\n出水才一直顺当，\n机子也耐用 🙂\n\n——欧乐家 {销售名}", "tips": ["保养盲区", "超出常识"], "asset": ""}, {"id": "S14", "date": "2027-03-05", "time": "09:30", "kind": "extra", "cat": "solar", "title": "惊蛰", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，惊蛰安康 🌸\n\n惊蛰回暖，\n饮食上可以多些清淡汤水，\n平和换季少上火 🍲\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "清淡汤水"], "asset": ""}, {"id": "H12", "date": "2027-03-09", "time": "09:30", "kind": "extra", "cat": "festival", "title": "龙抬头（当天加发）", "hook": "节假日当天 · 纯祝福", "content": "{称呼}，二月二龙抬头 🐉\n\n老话说\n\"二月二剃龙头，\n一年都有精神头\"。\n\n这两天去理个发、修修面，\n人也精神。\n\n春天来了，万物都往上走，\n祝您今年顺风顺水、\n抬头见喜 😊\n\n——欧乐家 {销售名}", "tips": ["传统习俗，理发梗中老年熟悉", "纯祝福"], "asset": ""}, {"id": "FA25", "date": "2027-03-12", "time": "10:00", "kind": "friday", "cat": "daily", "title": "燃气软管自查", "hook": "安全牌，提醒不 preach", "content": "{称呼}，早上好 🔧\n\n厨房安全小提示：\n燃气软管别看它不起眼，\n用到两年会发硬、起裂纹。\n\n有空低头瞅一眼，\n心里踏实得多 🙂\n\n——欧乐家 {销售名}", "tips": ["安全牌，回复率高", "提醒为主，不评价客户"], "asset": ""}, {"id": "FA26", "date": "2027-03-19", "time": "10:00", "kind": "friday", "cat": "case", "title": "厨房焕新 · 装机实拍", "hook": "安装前后效果对比", "content": "{称呼}，早上好 🌤️\n\n昨天在{小区名}装了一套厨电，\n跟您分享下前后的变化——\n\n装之前厨房局促，\n原来的灶用了些年头，\n做起饭来不顺手。\n\n师傅把旧灶拆了、\n台面擦净、旧机带走，\n新机一装好，\n整个灶台都亮堂了。\n\n拍了两张图，\n您瞅瞅前后对比 📷\n\n我们一直是自己的安装队，\n装完您验收满意了再付钱，不慌 🙂\n\n——欧乐家 {销售名}", "tips": ["配 2 张真实装机图(前/后)", "{小区名} 换真实小区", "以安装前后效果为主，不评价客户厨房新旧"], "asset": "装机前后对比图 ×2"}, {"id": "S15", "date": "2027-03-20", "time": "09:30", "kind": "extra", "cat": "solar", "title": "春分", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，春分安康 🌿\n\n春分昼夜均分，\n作息可以慢慢调得规律些，\n养足精神更省心 😊\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "规律作息"], "asset": ""}, {"id": "FA27", "date": "2027-03-26", "time": "10:00", "kind": "friday", "cat": "promo", "title": "春季焕新 · 三件套", "hook": "开春最佳换机期 + 排期宽松", "content": "{称呼}，早上好 🌷\n\n三月了，重庆的花都开了~\n\n开春是换厨电最合适的时候，\n不冷不热，师傅排期也宽松：\n\n🔥 燃气灶 399\n💨 油烟机 699\n💧 热水器 599\n\n四免 · 先装后付 · 8年质保 ✔\n旧机抵扣 ♻️\n\n想焕新的跟我说，\n给您留位置 📅\n\n您先了解，不急 🙂\n\n——欧乐家 {销售名}", "tips": ["价格核对 399/699/599", "春季装机体验最好"], "asset": ""}, {"id": "FA28", "date": "2027-04-02", "time": "10:00", "kind": "friday", "cat": "daily", "title": "水温上不去查两处", "hook": "故障自查", "content": "{称呼}，早上好 🌡️\n\n水老是烧不热，\n先看燃气阀开足没，\n再看是不是水压不够——\n高峰期整栋水压一掉，\n水温就上不来。\n\n不是机子问题，\n换个时段就好 🙂\n\n——欧乐家 {销售名}", "tips": ["故障自查", "提醒错峰，不教客户调阀"], "asset": ""}, {"id": "S16", "date": "2027-04-05", "time": "09:30", "kind": "extra", "cat": "solar", "title": "清明", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，清明安康 🌱\n\n清明气候宜人，\n趁好天气多出门走走，\n劳逸结合别太累 🍃\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "踏青舒缓"], "asset": ""}, {"id": "FA29", "date": "2027-04-09", "time": "10:00", "kind": "friday", "cat": "case", "title": "装机实拍 · 软管隐患", "hook": "安装前隐患 → 安装后解除", "content": "{称呼}，早上好 ☀️\n\n前两天装机，\n有个细节想跟您分享——\n\n去{小区名}一家拆旧灶，\n顺手看了眼燃气软管，\n好家伙，管子发硬、\n还起了裂纹。\n\n这种万一漏气，\n可不是小事。\n\n当场给换了一根新的，\n隐患也就消了。\n\n装厨电这些年，\n这种隐患见得不少，\n多留个心总没错 🙂\n\n——欧乐家 {销售名}", "tips": ["以隐患→解除为主线，只讲过程", "不提免费/增值服务", "可不配图"], "asset": ""}, {"id": "FA30", "date": "2027-04-16", "time": "10:00", "kind": "friday", "cat": "daily", "title": "长期外出关阀好习惯", "hook": "安全习惯", "content": "{称呼}，早上好 🔒\n\n出远门几天，\n记得把水阀、燃气阀关了。\n\n回来一开就热水，\n还免得管路悄悄漏。\n\n这个小习惯，\n省心也安全 🙏\n\n——欧乐家 {销售名}", "tips": ["安全习惯", "关怀"], "asset": ""}, {"id": "S17", "date": "2027-04-20", "time": "09:30", "kind": "extra", "cat": "solar", "title": "谷雨", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，谷雨安康 🌾\n\n谷雨春深，\n离夏天不远了，\n饮食少油腻，\n多吃点应季鲜蔬更舒坦 🥬\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "应季鲜蔬"], "asset": ""}, {"id": "FA31", "date": "2027-04-23", "time": "10:00", "kind": "friday", "cat": "daily", "title": "厨房安全三句", "hook": "好记好用", "content": "{称呼}，早上好 🙏\n\n厨房安全小提示：\n▪ 人离厨房火要熄\n▪ 用气时窗留条缝\n▪ 闻着怪味先开窗\n\n这几条记在心里，\n比啥都管用 🙂\n\n——欧乐家 {销售名}", "tips": ["安全牌", "实用好记"], "asset": ""}, {"id": "FA32", "date": "2027-04-30", "time": "10:00", "kind": "friday", "cat": "daily", "title": "风轮才是吸力关键", "hook": "保养盲区", "content": "{称呼}，早上好 💨\n\n您擦油网，\n吸力还是差？\n\n因为真正积油的是\n里面的风轮(电机叶轮)。\n\n把风轮拆下来洗洗，\n吸力就回来了，\n不用急着换新 🙂\n\n——欧乐家 {销售名}", "tips": ["保养盲区", "风轮可拆洗，自己就能弄，不给请师傅引导"], "asset": ""}, {"id": "H15", "date": "2027-05-01", "time": "09:30", "kind": "extra", "cat": "festival", "title": "劳动节（当天加发）", "hook": "节假日当天 · 纯祝福", "content": "{称呼}，劳动节快乐 💪\n\n平时忙里忙外辛苦了，\n趁假期好好休整 😊\n\n——欧乐家 {销售名}", "tips": ["用户提供的节日措辞", "致敬老一辈勤快"], "asset": ""}, {"id": "S18", "date": "2027-05-05", "time": "09:30", "kind": "extra", "cat": "solar", "title": "立夏", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，立夏安康 ☀️\n\n天慢慢热起来了，\n厨房做饭记得开点窗通风，\n别闷着 😊\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "厨房通风"], "asset": ""}, {"id": "FA33", "date": "2027-05-07", "time": "10:00", "kind": "friday", "cat": "daily", "title": "灶打不燃先看电池", "hook": "小知识，很多人不知道", "content": "{称呼}，早上好 🔋\n\n灶突然打不燃火，\n先别急着当机子坏了——\n多半是点火电池没电了。\n\n脉冲点火靠两节电池，\n电力弱了火就打不燃，\n该换时就换，\n不值当为这个换整台灶 🙂\n\n——欧乐家 {销售名}", "tips": ["实用干货", "提醒为主，不教客户自己换"], "asset": ""}, {"id": "FA34", "date": "2027-05-14", "time": "10:00", "kind": "friday", "cat": "case", "title": "油烟机以旧换新 · 对比", "hook": "换新前后强对比", "content": "{称呼}，早上好 ☕\n\n给您看个昨天的活路 📷\n\n{小区名}一户的油烟机，\n用了十来年，\n油腻得推都推不动，\n抽力基本没得了。\n\n换了个新的大吸力，\n炒海椒都不呛人了。\n\n装完台面擦净、旧机带走，\n利利索索的。\n\n拍了张前后对比，\n您瞅瞅 📷\n\n——欧乐家 {销售名}", "tips": ["旧机油污特写 + 新机成品图", "'炒海椒都不呛人'强共鸣", "以安装前后效果为主"], "asset": "旧机油污特写 + 新机成品图 ×2"}, {"id": "S19", "date": "2027-05-21", "time": "09:30", "kind": "extra", "cat": "solar", "title": "小满", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，小满安康 🌿\n\n湿热渐重的时节，\n多补温水，少贪冰饮，\n肠胃少遭罪 💧\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "温水少冰"], "asset": ""}, {"id": "FA35", "date": "2027-05-28", "time": "10:00", "kind": "friday", "cat": "daily", "title": "熄火保护要认准", "hook": "选购/换机安全知识点", "content": "{称呼}，早上好 ⚠️\n\n厨房安全小提示：\n下次换灶记得看熄火保护。\n\n汤一溢、火灭了，\n它自己就断气，\n人不在灶边也放心。\n\n早些年的灶不少没这功能，\n换的时候多留个心 🙂\n\n——欧乐家 {销售名}", "tips": ["安全知识点", "提醒为主不硬推"], "asset": ""}, {"id": "FA36", "date": "2027-06-04", "time": "10:00", "kind": "friday", "cat": "daily", "title": "邻居家油烟倒灌", "hook": "痛点共鸣", "content": "{称呼}，早上好 🌀\n\n炒菜时一股别人家味，\n多半是止逆阀或排烟管松了。\n\n这小阀一失效，\n楼上楼下油烟直往回灌，\n挺闹心的。\n\n换个止逆阀、把排烟管接紧，\n油烟就不往回跑了，\n别急着换新机 🙂\n\n——欧乐家 {销售名}", "tips": ["痛点共鸣", "止逆阀是可拆小件，自己就能换，不给请师傅引导"], "asset": ""}, {"id": "S20", "date": "2027-06-05", "time": "09:30", "kind": "extra", "cat": "solar", "title": "芒种", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，芒种安康 🌾\n\n多雨潮湿，\n家里餐具厨具记得沥干存放，\n多注意饮食卫生 🍽️\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "餐具卫生"], "asset": ""}, {"id": "H17", "date": "2027-06-09", "time": "09:30", "kind": "extra", "cat": "festival", "title": "端午节（当天加发）", "hook": "节假日当天 · 纯祝福", "content": "{称呼}，端午安康 🎋\n\n吃点应节的食物，\n好好歇一天 🙏\n\n——欧乐家 {销售名}", "tips": ["用户提供的节日措辞", "零产品"], "asset": ""}, {"id": "FA37", "date": "2027-06-11", "time": "10:00", "kind": "friday", "cat": "case", "title": "雨天装机 · 实拍", "hook": "雨天照样上门 + 细节", "content": "{称呼}，早上好 ☔\n\n重庆这两天下雨，\n空气都是湿的。\n\n昨天在{小区名}装了整套厨电——\n师傅鞋套套起、地垫铺好，\n装完把地上水渍都擦干才走。\n\n雨天也照常上门，\n不误您做饭。\n\n拍了张现场图，\n您瞅瞅 📷\n\n——欧乐家 {销售名}", "tips": ["配 1 张装机现场图", "雨天服务细节，只讲过程"], "asset": "装机现场图 ×1"}, {"id": "FA38", "date": "2027-06-18", "time": "10:00", "kind": "friday", "cat": "daily", "title": "高峰排不出去不是机子问题", "hook": "常识纠偏", "content": "{称呼}，早上好 🍲\n\n饭点油烟排不出去，\n别急着怪机子——\n是整栋公共烟道堵了。\n\n这时候换多大吸力都有限，\n错峰炒两锅就好 🙏\n\n——欧乐家 {销售名}", "tips": ["常识纠偏", "建立专业感"], "asset": ""}, {"id": "S21", "date": "2027-06-21", "time": "09:30", "kind": "extra", "cat": "solar", "title": "夏至", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，夏至安康 ☀️\n\n白昼最长的一天，\n正午尽量别在厨房久待，\n歇个午觉更养人 😴\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "正午避热"], "asset": ""}, {"id": "FA39", "date": "2027-06-25", "time": "10:00", "kind": "friday", "cat": "promo", "title": "年中焕新", "hook": "三件套 + 当天装 + 旧机抵扣", "content": "{称呼}，早上好 ☀️\n\n半年过了，天也热起来~\n\n店里做个年中焕新，跟您说一声：\n\n🔥 燃气灶 399\n💨 油烟机 699\n💧 热水器 599\n\n三样一起换，师傅半天装完，\n主城当天能上门 🚚\n\n四免照旧：\n送货 · 拆旧 · 安装 · 清台面，\n一分不收\n装好您验收满意了再付款 ✔\n核心件 8年质保\n\n不打扰您了，\n需要了招呼一声 🙂\n\n——欧乐家 {销售名}", "tips": ["价格核对 399/699/599", "把选择权交回客户"], "asset": ""}, {"id": "FA40", "date": "2027-07-02", "time": "10:00", "kind": "friday", "cat": "daily", "title": "噪音大先查油堵", "hook": "故障自查", "content": "{称呼}，早上好 🔊\n\n油烟机突然嗡嗡响、\n吸力还弱，\n八成是风轮油糊住了。\n\n不是电机坏，\n把风轮拆下来洗洗就好，\n别急着换新 🙂\n\n——欧乐家 {销售名}", "tips": ["故障自查", "风轮可拆洗，自己就能弄，不给请师傅引导"], "asset": ""}, {"id": "S22", "date": "2027-07-07", "time": "09:30", "kind": "extra", "cat": "solar", "title": "小暑", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，小暑安康 🌞\n\n入伏天热，\n做饭尽量避开正午最热的时候，\n别累着自己 🙂\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "避正午做饭"], "asset": ""}, {"id": "FA41", "date": "2027-07-09", "time": "10:00", "kind": "friday", "cat": "case", "title": "暑期装机 · 用水高峰", "hook": "热水器恒温场景", "content": "{称呼}，早上好 😊\n\n暑假里家里进出勤，\n厨房用水都多。\n\n昨天{小区名}一户，\n旧热水器忽冷忽热，\n洗澡都不安稳；\n\n换了我们13升恒温的，\n出水稳当，用着也省心。\n\n装完台面擦净、旧机带走，\n利利索索的。\n\n——欧乐家 {销售名}", "tips": ["配 1 张新机装好图", "前(旧机忽冷忽热)→后(恒温稳当)对比"], "asset": "新机装好图 ×1"}, {"id": "FA42", "date": "2027-07-16", "time": "10:00", "kind": "friday", "cat": "daily", "title": "火苗变红就该清炉头", "hook": "保养干货，超出常识", "content": "{称呼}，早上好 🔥\n\n正常火苗是蓝的。\n要是变红、变黄、还噗噗响，\n是炉头(分火器)积碳了。\n\n炉头是能取下来的，\n拿下来温水泡一泡、\n清水冲净、火孔通一通，\n擦干装回去就好，\n火又蓝又稳，\n省气还烧得透 🙂\n\n——欧乐家 {销售名}", "tips": ["保养干货", "炉头/分火器是灶具可拆件，自己就能弄，安全DIY"], "asset": ""}, {"id": "S23", "date": "2027-07-22", "time": "09:30", "kind": "extra", "cat": "solar", "title": "大暑", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，大暑安康 🔥\n\n一年最热的时候，\n多喝温茶少贪凉，\n饮食清淡些，\n身子更舒坦 🍵\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "温茶淡食"], "asset": ""}, {"id": "FA43", "date": "2027-07-23", "time": "10:00", "kind": "friday", "cat": "daily", "title": "热水器排烟管要通室外", "hook": "用气安全盲区", "content": "{称呼}，早上好 💨\n\n厨房安全小提示：\n燃气热水器排气管，\n一定要伸到室外。\n\n接公共烟道、被堵住，\n废气排不出去很危险，\n装的时候我们都会查，\n您也留个心 🙏\n\n——欧乐家 {销售名}", "tips": ["安全盲区", "专业背书"], "asset": ""}, {"id": "FA44", "date": "2027-07-30", "time": "10:00", "kind": "friday", "cat": "daily", "title": "灶具电池两年一换", "hook": "小保养大用处", "content": "{称呼}，早上好 🔋\n\n灶具点火靠那两节电池，\n一般一两年电力就弱了。\n\n火打不燃、老得按好几下，\n多半是电池的事，\n该换时就换就好 🙂\n\n——欧乐家 {销售名}", "tips": ["保养提醒", "提醒为主"], "asset": ""}, {"id": "FA45", "date": "2027-08-06", "time": "10:00", "kind": "friday", "cat": "daily", "title": "闻到燃气味怎么办", "hook": "应急常识，救急", "content": "{称呼}，早上好 🚨\n\n真闻到燃气味：\n千万别开灯、别打电话，\n先开窗、关总阀，\n人到室外再拨电话。\n\n这几步记牢，\n关键时刻保平安 🙏\n\n——欧乐家 {销售名}", "tips": ["应急干货", "建立信任"], "asset": ""}, {"id": "S24", "date": "2027-08-07", "time": "09:30", "kind": "extra", "cat": "solar", "title": "立秋", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，立秋安康 🍂\n\n早晚开始转凉，\n夜里厨房窗户别开太大，\n当心着凉 🧥\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "夜窗保暖"], "asset": ""}, {"id": "FA46", "date": "2027-08-13", "time": "10:00", "kind": "friday", "cat": "case", "title": "装机实拍 · 顺手搭把手", "hook": "安装前隐患 → 安装后解除", "content": "{称呼}，早上好 ☕\n\n前两天装机有个小细节——\n\n一户灶台边瓷砖松了，\n平时不留意，\n一碰就晃。\n\n装机的时候顺手按紧了，\n隐患也就解除了。\n\n这种顺手的事儿，\n装的时候遇见就顺带弄了，\n不值当专门跑一趟。\n\n——欧乐家 {销售名}", "tips": ["以隐患→解除为主线，只讲过程", "安装时顺手搭把手(非随叫随到)", "可不配图"], "asset": ""}, {"id": "FA47", "date": "2027-08-20", "time": "10:00", "kind": "friday", "cat": "daily", "title": "燃气软管自查", "hook": "安全牌，提醒不 preach", "content": "{称呼}，早上好 🔧\n\n厨房安全小提示：\n燃气软管别看它不起眼，\n用到两年会发硬、起裂纹。\n\n有空低头瞅一眼，\n心里踏实得多 🙂\n\n——欧乐家 {销售名}", "tips": ["安全牌，回复率高", "提醒为主，不评价客户"], "asset": ""}, {"id": "S25", "date": "2027-08-23", "time": "09:30", "kind": "extra", "cat": "solar", "title": "处暑", "hook": "节气当天 · 顺时关怀", "content": "{称呼}，处暑安康 🍃\n\n暑气慢慢退了，\n天凉快下来，\n做饭也舒服多了 😊\n\n——欧乐家 {销售名}", "tips": ["用户提供的节气措辞", "立秋后收尾"], "asset": ""}], "pushed_ids": ["FA01"]};
+/* 欧乐家 · 微信营销内容日历 */
+(function () {
+  'use strict';
+
+  var DB = null;
+  var STORE_K = 'olj_wx_cal_v1';
+  var state = { cur: null, month: null, view: 'calendar' };
+  var store = load();
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORE_K)) || {}; } catch (e) { return {}; }
+  }
+  function save() { localStorage.setItem(STORE_K, JSON.stringify(store)); }
+  function rec(id) { return store[id] || (store[id] = { st: 'todo', note: '' }); }
+  function statusOf(id) {
+    var r = rec(id);
+    if (r.st && r.st !== 'todo') return r.st;            // 手动标记优先（done/skip）
+    if (DB && DB.pushed_ids && DB.pushed_ids.indexOf(id) >= 0) return 'done';  // 自动已发布
+    return 'todo';
+  }
+
+  var $ = function (s) { return document.querySelector(s); };
+  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+
+  function toast(msg) {
+    var t = $('#toast'); t.textContent = msg; t.classList.add('on');
+    clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('on'); }, 1900);
+  }
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function parse(s) { var a = s.split('-'); return new Date(+a[0], +a[1] - 1, +a[2]); }
+  var WD = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+
+  function hex2rgba(h, a) {
+    var n = parseInt(h.slice(1), 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+  function catVars(cat) {
+    var c = DB.cats[cat];
+    return 'style="--c:' + c.color + ';--cb:' + hex2rgba(c.color, .1) + '"';
+  }
+
+  /* ============ 统计 ============ */
+  function renderStats() {
+    var items = DB.items, today = ymd(new Date());
+    var done = 0, skip = 0, past = 0;
+    var byCat = {};
+    items.forEach(function (it) {
+      var st = statusOf(it.id);
+      if (st === 'done') done++;
+      if (st === 'skip') skip++;
+      if (it.date <= today) past++;
+      byCat[it.cat] = (byCat[it.cat] || 0) + 1;
+    });
+    var next = items.filter(function (it) { return it.date >= today && statusOf(it.id) === 'todo'; })[0];
+    var pct = items.length ? Math.round(done / items.length * 100) : 0;
+    var overdue = items.filter(function (it) { return it.date < today && statusOf(it.id) === 'todo'; }).length;
+
+    var cards = [
+      { v: items.length, l: '排期总条数', s: DB.meta.range.replace(/-/g, '.'), c: '#6366F1' },
+      { v: done, l: '已发送', s: '完成率 ' + pct + '%', c: '#10B981', bar: pct },
+      { v: overdue, l: '逾期未发', s: overdue ? '需要立即补发' : '进度正常', c: overdue ? '#EF4444' : '#94A3B8' },
+      {
+        v: next ? next.date.slice(5).replace('-', '/') : '—', l: '下一次推送',
+        s: next ? WD[parse(next.date).getDay()] + ' ' + next.time + ' · ' + DB.cats[next.cat].name : '已全部完成',
+        c: '#C8511B'
+      },
+      { v: DB.meta.team_size + ' 人', l: '执行销售团队', s: '统一话术 · 统一节奏', c: '#0EA5E9' }
+    ];
+    $('#stats').innerHTML = cards.map(function (c) {
+      return '<div class="stat" style="--accent:' + c.c + '">' +
+        '<div class="v" style="color:' + c.c + '">' + c.v + '</div>' +
+        '<div class="l">' + c.l + '</div>' +
+        '<div class="s">' + c.s + '</div>' +
+        (c.bar != null ? '<div class="bar"><i style="width:' + c.bar + '%"></i></div>' : '') +
+        '</div>';
+    }).join('');
+  }
+
+  /* ============ 图例 ============ */
+  function renderLegend() {
+    var cnt = {};
+    DB.items.forEach(function (i) { cnt[i.cat] = (cnt[i.cat] || 0) + 1; });
+    $('#legend').innerHTML = Object.keys(DB.cats).map(function (k) {
+      return '<span class="lg"><i style="background:' + DB.cats[k].color + '"></i>' +
+        DB.cats[k].name + ' <b>' + (cnt[k] || 0) + '</b></span>';
+    }).join('');
+    var sel = $('#filterCat');
+    Object.keys(DB.cats).forEach(function (k) {
+      var o = document.createElement('option');
+      o.value = k; o.textContent = DB.cats[k].name; sel.appendChild(o);
+    });
+  }
+
+  /* ============ 日历 ============ */
+  function renderCal() {
+    var y = state.month.getFullYear(), m = state.month.getMonth();
+    $('#monthLabel').textContent = y + ' 年 ' + (m + 1) + ' 月';
+
+    var first = new Date(y, m, 1);
+    var offset = (first.getDay() + 6) % 7;           // 周一为首列
+    var start = new Date(y, m, 1 - offset);
+    var today = ymd(new Date());
+    var map = {};
+    DB.items.forEach(function (it) { (map[it.date] = map[it.date] || []).push(it); });
+
+    var html = '';
+    for (var i = 0; i < 42; i++) {
+      var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      var k = ymd(d), out = d.getMonth() !== m, fri = d.getDay() === 5;
+      var cls = 'cell' + (out ? ' out' : '') + (fri && !out ? ' fri' : '') + (k === today ? ' today' : '');
+      html += '<div class="' + cls + '"><div class="dn">' + d.getDate() +
+        (k === today ? '<span class="lunar">今天</span>' : '') + '</div>';
+      (map[k] || []).forEach(function (it) {
+        var st = statusOf(it.id);
+        var stTxt = st === 'done' ? '已发' : st === 'skip' ? '跳过' : '待发';
+        html += '<div class="evt' + (it.kind === 'extra' ? ' is-extra' : '') + '" data-id="' + it.id + '" ' + catVars(it.cat) + '>' +
+          '<div class="et">' + it.title + (it.kind === 'extra' ? '<span class="badge-extra">加发</span>' : '') + '</div>' +
+          '<div class="eb"><span class="etime">' + it.time + '</span>' +
+          '<span class="est ' + st + '">' + stTxt + '</span></div></div>';
+      });
+      html += '</div>';
+    }
+    $('#calGrid').innerHTML = html;
+  }
+
+  /* ============ 清单 ============ */
+  function renderList() {
+    var q = $('#searchBox').value.trim().toLowerCase();
+    var fc = $('#filterCat').value, fs = $('#filterStatus').value;
+    var rows = DB.items.filter(function (it) {
+      if (fc && it.cat !== fc) return false;
+      if (fs && statusOf(it.id) !== fs) return false;
+      if (q && (it.title + it.hook + it.content).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    if (!rows.length) { $('#listWrap').innerHTML = '<div class="g-card" style="text-align:center;color:var(--tx3)">没有匹配的内容</div>'; return; }
+
+    var html = '', lastM = '';
+    rows.forEach(function (it) {
+      var d = parse(it.date), mk = d.getFullYear() + '年' + (d.getMonth() + 1) + '月';
+      if (mk !== lastM) { html += '<div class="month-sep">' + mk + '</div>'; lastM = mk; }
+      var st = statusOf(it.id);
+      var stTxt = st === 'done' ? '已发送' : st === 'skip' ? '已跳过' : '待发送';
+      html += '<div class="row" data-id="' + it.id + '">' +
+        '<div class="rd"><div class="dd">' + d.getDate() + '</div><div class="dw">' + WD[d.getDay()] + '</div></div>' +
+        '<div class="rc"><div class="rt">' + it.title + (it.kind === 'extra' ? '<span class="badge-extra">加发</span>' : '') + '</div>' +
+        '<div class="rh">' + it.hook + '</div></div>' +
+        '<div class="rr"><span class="cat-chip" ' + catVars(it.cat) + '>' + DB.cats[it.cat].name + '</span>' +
+        '<span class="est ' + st + '" style="font-size:11px;padding:3px 8px;border-radius:5px">' + stTxt + '</span></div></div>';
+    });
+    $('#listWrap').innerHTML = html;
+  }
+
+  /* ============ 指南 ============ */
+  function renderGuide() {
+    var g = DB.guide, m = DB.meta;
+    var h = '';
+    h += '<div class="g-card"><h3>' + g.title + '</h3>' +
+      '<p class="sub">这套规则是所有话术的底层。销售可以不背话术，但必须遵守这 ' + g.rules.length + ' 条。</p>' +
+      g.rules.map(function (r) {
+        return '<div class="rule"><div class="rk">' + r.k + '</div><div class="rv">' + r.v + '</div></div>';
+      }).join('') + '</div>';
+
+    h += '<div class="g-card"><h3>绝对禁用清单</h3>' +
+      '<p class="sub">出现以下任意一项，这条消息就废了 —— 客户会立刻判定为「群发广告」。</p>' +
+      '<div class="forbid">' + g.forbidden.map(function (f) { return '<span>' + f + '</span>'; }).join('') + '</div></div>';
+
+    h += '<div class="g-card"><h3>四大内容板块</h3>' +
+      '<p class="sub">全年配比经过设计：关系维护型内容占 66%，销售型内容仅占 16%，这是老年客群不屏蔽你的前提。</p>' +
+      '<div class="cat-explain">' + Object.keys(DB.cats).map(function (k) {
+        var c = DB.cats[k], n = DB.items.filter(function (i) { return i.cat === k; }).length;
+        return '<div class="ce" style="border-left-color:' + c.color + '">' +
+          '<div class="cen"><span style="color:' + c.color + '">' + c.name + '</span>' +
+          '<span class="cec">' + n + ' 条 · ' + Math.round(n / DB.items.length * 100) + '%</span></div>' +
+          '<div class="ced">' + c.desc + '</div></div>';
+      }).join('') + '</div></div>';
+
+    h += '<div class="g-card"><h3>产品与价格（铁律，不得改动）</h3>' +
+      '<p class="sub">任何话术中出现的价格必须与此处逐字一致。</p>' +
+      '<div class="pgrid">' + m.products.map(function (p) {
+        return '<div class="pcard"><div class="pn">' + p.n + '</div>' +
+          '<div class="pp">¥' + p.p + '</div>' +
+          '<div class="ps">' + p.sell + '</div></div>';
+      }).join('') + '</div>' +
+      '<div style="margin-top:20px"><div class="block-h" style="margin-bottom:9px">服务承诺（信任闭环）</div>' +
+      '<div class="svc">' + m.service.map(function (s) { return '<span>' + s + '</span>'; }).join('') + '</div></div></div>';
+
+    h += '<div class="g-card"><h3>周五执行流程</h3><p class="sub">四个销售统一动作，10:00 准点发出。</p>' +
+      ['09:30 　话术自动推送到企业微信群，销售提前打开确认',
+        '09:40 　按名单准备称呼（张哥/李孃孃/王叔），需配图的先存好图',
+        '10:00 　准点发出，逐个发送，不要用群发助手（会被识别）',
+        '10:00-12:00　必须在线，客户回复 30 分钟内响应',
+        '当天下班前　在本系统标记「已发送」并填写客户反馈备注'
+      ].map(function (s, i) {
+        return '<div class="rule"><div class="rk">STEP ' + (i + 1) + '</div><div class="rv">' + s + '</div></div>';
+      }).join('') + '</div>';
+
+    $('#guideWrap').innerHTML = h;
+  }
+
+  /* ============ 抽屉 ============ */
+  function openDrawer(id) {
+    var it = DB.items.filter(function (x) { return x.id === id; })[0];
+    if (!it) return;
+    state.cur = it;
+    var r = rec(id), d = parse(it.date), c = DB.cats[it.cat];
+
+    $('#dCat').textContent = c.name;
+    $('#dCat').setAttribute('style', '--c:' + c.color + ';--cb:' + hex2rgba(c.color, .1));
+    $('#dTitle').textContent = it.title;
+    $('#dMeta').textContent = it.date + ' ' + WD[d.getDay()] + ' ' + it.time +
+      ' 　·　 ' + (it.kind === 'extra' ? '节日加发（短版）' : '周五主推') + ' 　·　 ' + it.hook;
+
+    $('#wxName').textContent = '张孃孃';
+    $('#wxTime').textContent = (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + it.time;
+    $('#wxBubble').textContent = it.content.replace(/\{称呼\}/g, '张孃孃').replace(/\{销售名\}/g, '小李').replace(/\{小区名\}/g, '龙湖春森彼岸');
+    $('#dRaw').textContent = it.content;
+
+    if (it.asset) { $('#assetBlock').style.display = ''; $('#dAsset').textContent = '📷 ' + it.asset; }
+    else { $('#assetBlock').style.display = 'none'; }
+
+    $('#dTips').innerHTML = it.tips.map(function (t) {
+      return '<li class="' + (t.indexOf('★') === 0 ? 'key' : '') + '">' + t + '</li>';
+    }).join('');
+
+    $$('.sbtn').forEach(function (b) { b.classList.toggle('on', b.dataset.st === r.st); });
+    $('#dNote').value = r.note || '';
+
+    $('#mask').classList.add('on');
+    $('#drawer').classList.add('on');
+  }
+  function closeDrawer() {
+    if (state.cur) { rec(state.cur.id).note = $('#dNote').value; save(); }
+    $('#mask').classList.remove('on'); $('#drawer').classList.remove('on');
+    state.cur = null; refresh();
+  }
+
+  /* ============ 导出 ============ */
+  function exportTxt() {
+    var lines = ['重庆欧乐家厨电 · 微信营销话术全集',
+      '排期 ' + DB.meta.range + ' 　共 ' + DB.items.length + ' 条',
+      '发送节奏：' + DB.meta.cadence,
+      '导出时间：' + new Date().toLocaleString('zh-CN'),
+      '\n发送前务必替换：{称呼} → 客户真实称呼　{销售名} → 你的名字　{小区名} → 真实小区',
+      '\n' + '='.repeat(46) + '\n'];
+    DB.items.forEach(function (it, i) {
+      var d = parse(it.date);
+      lines.push('【' + (i + 1) + '】' + it.date + ' ' + WD[d.getDay()] + ' ' + it.time +
+        '　[' + DB.cats[it.cat].name + ']' + (it.kind === 'extra' ? '[节日加发]' : ''));
+      lines.push('主题：' + it.title + '　（' + it.hook + '）');
+      if (it.asset) lines.push('配图：' + it.asset);
+      lines.push('-'.repeat(46));
+      lines.push(it.content);
+      lines.push('-'.repeat(46));
+      lines.push('发送要点：');
+      it.tips.forEach(function (t) { lines.push('  · ' + t); });
+      lines.push('\n' + '='.repeat(46) + '\n');
+    });
+    var blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '欧乐家_微信营销话术全集_' + DB.meta.range.replace(/-/g, '') + '.txt';
+    a.click(); URL.revokeObjectURL(a.href);
+    toast('已导出 ' + DB.items.length + ' 条话术');
+  }
+
+  /* ============ 推送状态 ============ */
+  function checkPush() {
+    fetch('data/push_status.json?t=' + Date.now()).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (j && j.configured) {
+          $('#pushStatus').classList.add('on');
+          $('#pushTxt').textContent = j.last_push
+            ? '企微推送已开启 · 上次 ' + j.last_push
+            : '企微推送已开启 · 每周五 09:30';
+        }
+      }).catch(function () { });
+  }
+
+  function refresh() {
+    renderStats();
+    if (state.view === 'calendar') renderCal();
+    if (state.view === 'list') renderList();
+  }
+
+  /* ============ 事件 ============ */
+  function bind() {
+    $$('.tab').forEach(function (t) {
+      t.onclick = function () {
+        $$('.tab').forEach(function (x) { x.classList.remove('active'); });
+        t.classList.add('active');
+        state.view = t.dataset.view;
+        $$('.view').forEach(function (v) { v.classList.remove('active'); });
+        $('#view-' + state.view).classList.add('active');
+        refresh();
+      };
+    });
+    $('#prevM').onclick = function () { state.month.setMonth(state.month.getMonth() - 1); renderCal(); };
+    $('#nextM').onclick = function () { state.month.setMonth(state.month.getMonth() + 1); renderCal(); };
+    $('#todayBtn').onclick = function () { state.month = new Date(); renderCal(); };
+
+    document.addEventListener('click', function (e) {
+      var evt = e.target.closest('.evt,.row');
+      if (evt && evt.dataset.id) openDrawer(evt.dataset.id);
+    });
+    $('#mask').onclick = closeDrawer;
+    $('#dClose').onclick = closeDrawer;
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDrawer(); });
+
+    $$('.sbtn').forEach(function (b) {
+      b.onclick = function () {
+        if (!state.cur) return;
+        rec(state.cur.id).st = b.dataset.st; save();
+        $$('.sbtn').forEach(function (x) { x.classList.toggle('on', x === b); });
+        renderStats();
+        toast(b.dataset.st === 'done' ? '已标记为「已发送」' : b.dataset.st === 'skip' ? '已跳过本条' : '已恢复为待发送');
+      };
+    });
+    $('#dNote').onblur = function () { if (state.cur) { rec(state.cur.id).note = this.value; save(); } };
+
+    $('#btnCopy').onclick = function () {
+      if (!state.cur) return;
+      var btn = this;
+      navigator.clipboard.writeText(state.cur.content).then(function () {
+        btn.textContent = '✓ 已复制'; btn.classList.add('ok');
+        toast('话术已复制，记得替换称呼和落款');
+        setTimeout(function () { btn.textContent = '复制话术'; btn.classList.remove('ok'); }, 2000);
+      });
+    };
+    $('#btnExport').onclick = exportTxt;
+    $('#searchBox').oninput = renderList;
+    $('#filterCat').onchange = renderList;
+    $('#filterStatus').onchange = renderList;
+  }
+
+  /* ============ 启动 ============ */
+  function boot(j) {
+    DB = j;
+    var today = new Date();
+    var firstPending = DB.items.filter(function (it) { return it.date >= ymd(today); })[0];
+    state.month = firstPending ? parse(firstPending.date) : today;
+    renderLegend(); renderGuide(); bind(); refresh(); checkPush();
+  }
+  if (window.__DATA__) {
+    boot(window.__DATA__);
+  } else {
+    fetch('data/content.json?t=' + Date.now())
+      .then(function (r) { return r.json(); })
+      .then(boot)
+      .catch(function (e) {
+        document.querySelector('main').innerHTML =
+          '<div class="g-card"><h3>内容库加载失败</h3><p class="sub">请通过本地服务访问（不要直接双击打开 html 文件）。</p></div>';
+        console.error(e);
+      });
+  }
+})();
+
+</script>
+</body>
+</html>

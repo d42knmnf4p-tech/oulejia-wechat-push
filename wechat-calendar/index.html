@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>欧乐家 · 微信营销内容日历</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">欧</div>
+    <div class="brand-txt">
+      <h1>欧乐家 · 微信营销内容日历</h1>
+      <p>统一话术 · 每周五 10:00 准点触达 · 面向 50-60 岁客群</p>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="push-status" id="pushStatus">
+      <span class="dot"></span><span id="pushTxt">推送通道未配置</span>
+    </div>
+    <button class="btn-ghost" id="btnExport">导出话术</button>
+  </div>
+</header>
+
+<section class="stats" id="stats"></section>
+
+<nav class="tabs">
+  <button class="tab active" data-view="calendar">📅 日历视图</button>
+  <button class="tab" data-view="list">📋 内容清单</button>
+  <button class="tab" data-view="guide">📖 执行铁律</button>
+  <div class="legend" id="legend"></div>
+</nav>
+
+<main>
+  <!-- 日历视图 -->
+  <section id="view-calendar" class="view active">
+    <div class="cal-head">
+      <button class="nav-btn" id="prevM">‹</button>
+      <h2 id="monthLabel"></h2>
+      <button class="nav-btn" id="nextM">›</button>
+      <button class="btn-ghost sm" id="todayBtn">回到本月</button>
+    </div>
+    <div class="weekdays">
+      <span>一</span><span>二</span><span>三</span><span>四</span>
+      <span class="hl">五</span><span>六</span><span>日</span>
+    </div>
+    <div class="grid" id="calGrid"></div>
+  </section>
+
+  <!-- 清单视图 -->
+  <section id="view-list" class="view">
+    <div class="filter-bar">
+      <input type="text" id="searchBox" placeholder="搜索标题或内容关键词…">
+      <select id="filterCat">
+        <option value="">全部板块</option>
+      </select>
+      <select id="filterStatus">
+        <option value="">全部状态</option>
+        <option value="done">已发送</option>
+        <option value="todo">待发送</option>
+        <option value="skip">已跳过</option>
+      </select>
+    </div>
+    <div id="listWrap"></div>
+  </section>
+
+  <!-- 指南视图 -->
+  <section id="view-guide" class="view">
+    <div id="guideWrap"></div>
+  </section>
+</main>
+
+<!-- 详情抽屉 -->
+<div class="drawer-mask" id="mask"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div>
+      <span class="cat-chip" id="dCat"></span>
+      <h3 id="dTitle"></h3>
+      <p class="d-meta" id="dMeta"></p>
+    </div>
+    <button class="close" id="dClose">×</button>
+  </div>
+
+  <div class="drawer-body">
+    <div class="block">
+      <div class="block-h">微信内实际效果预览</div>
+      <div class="wx-preview">
+        <div class="wx-bar"><span id="wxName">客户</span></div>
+        <div class="wx-body">
+          <div class="wx-time" id="wxTime"></div>
+          <div class="wx-row">
+            <div class="wx-avatar">销</div>
+            <div class="wx-bubble" id="wxBubble"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-h">
+        话术原文
+        <button class="btn-copy" id="btnCopy">复制话术</button>
+      </div>
+      <pre class="raw" id="dRaw"></pre>
+    </div>
+
+    <div class="block" id="assetBlock">
+      <div class="block-h">配图要求</div>
+      <div class="asset" id="dAsset"></div>
+    </div>
+
+    <div class="block">
+      <div class="block-h">发送要点（销售必读）</div>
+      <ul class="tips" id="dTips"></ul>
+    </div>
+
+    <div class="block">
+      <div class="block-h">发布状态</div>
+      <div class="status-btns">
+        <button class="sbtn" data-st="todo">待发送</button>
+        <button class="sbtn done" data-st="done">✓ 已发送</button>
+        <button class="sbtn skip" data-st="skip">跳过本条</button>
+      </div>
+      <div class="note-wrap">
+        <textarea id="dNote" placeholder="执行备注：客户反馈、回复情况、成交线索…"></textarea>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
