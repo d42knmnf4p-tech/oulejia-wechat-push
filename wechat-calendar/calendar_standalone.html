@@ -460,6 +460,7 @@ main{padding:22px 28px 60px}
   var STORE_K = 'olj_wx_cal_v1';
   var state = { cur: null, month: null, view: 'calendar' };
   var store = load();
+  var livePushed = {};   // 云端写回的已发送 id（实时从仓库拉取，打开日历时生效）
 
   function load() {
     try { return JSON.parse(localStorage.getItem(STORE_K)) || {}; } catch (e) { return {}; }
@@ -469,7 +470,8 @@ main{padding:22px 28px 60px}
   function statusOf(id) {
     var r = rec(id);
     if (r.st && r.st !== 'todo') return r.st;            // 手动标记优先（done/skip）
-    if (DB && DB.pushed_ids && DB.pushed_ids.indexOf(id) >= 0) return 'done';  // 自动已发布
+    if (DB && DB.pushed_ids && DB.pushed_ids.indexOf(id) >= 0) return 'done';  // 本地烘焙的已发布
+    if (livePushed[id]) return 'done';                  // 云端实时写回的已发布
     return 'todo';
   }
 
@@ -789,12 +791,25 @@ main{padding:22px 28px 60px}
   }
 
   /* ============ 启动 ============ */
+  // 云端写回的已发送状态：实时从仓库拉取 pushed_ids.json，拉到后重渲染让“已发”即时生效
+  var STATUS_URL = 'https://raw.githubusercontent.com/d42knmnf4p-tech/oulejia-wechat-push/main/wechat-calendar/data/pushed_ids.json';
+  function loadLiveStatus() {
+    fetch(STATUS_URL + '?t=' + Date.now())
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j) return;
+        (j.pushed_ids || []).forEach(function (id) { livePushed[id] = true; });
+        refresh();   // 拉到云端状态后重渲染
+      })
+      .catch(function () { /* 离线/网络不通时忽略，回退到本地烘焙状态 */ });
+  }
   function boot(j) {
     DB = j;
     var today = new Date();
     var firstPending = DB.items.filter(function (it) { return it.date >= ymd(today); })[0];
     state.month = firstPending ? parse(firstPending.date) : today;
     renderLegend(); renderGuide(); bind(); refresh(); checkPush();
+    loadLiveStatus();   // 异步拉取云端已发送状态
   }
   if (window.__DATA__) {
     boot(window.__DATA__);

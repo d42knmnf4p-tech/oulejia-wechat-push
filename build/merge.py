@@ -60,9 +60,9 @@ out = {
     "items": items,
 }
 
-# 读取已发布记录，烘焙进 HTML（不再依赖运行时 fetch / localStorage）
+# 读取已发布记录（仓库内 pushed_ids.json，云端写回 + 本地烘焙共用），烘焙进 HTML
 try:
-    _ps = json.load(open(os.path.join(ROOT, "wechat-calendar", "data", "push_status.json"), encoding="utf-8"))
+    _ps = json.load(open(os.path.join(ROOT, "wechat-calendar", "data", "pushed_ids.json"), encoding="utf-8"))
     out["pushed_ids"] = _ps.get("pushed_ids", []) or []
 except Exception:
     out["pushed_ids"] = []

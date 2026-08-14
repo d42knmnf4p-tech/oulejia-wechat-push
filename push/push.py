@@ -16,6 +16,8 @@ ROOT = os.path.dirname(HERE)
 CONTENT = os.path.join(ROOT, "wechat-calendar", "data", "content.json")
 CONFIG = os.path.join(HERE, "config.json")
 STATUS = os.path.join(ROOT, "wechat-calendar", "data", "push_status.json")
+# 已发送 id 的“单一数据源”：存于仓库内，云端发送后由 workflow 写回，本地打开日历时实时拉取
+PUSHED = os.path.join(ROOT, "wechat-calendar", "data", "pushed_ids.json")
 LOG = os.path.join(HERE, "push.log")
 WD = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
 
@@ -35,6 +37,24 @@ def load_json(p, default=None):
         return default
     with open(p, encoding="utf-8") as f:
         return json.load(f)
+
+
+def record_pushed(ids):
+    """把已发送 id 写入仓库内的 pushed_ids.json（云端写回 + 本地烘焙共用单一数据源）。"""
+    try:
+        data = load_json(PUSHED, {}) or {}
+    except Exception:
+        data = {}
+    s = set(data.get("pushed_ids") or [])
+    for i in ids:
+        s.add(i)
+    data["pushed_ids"] = sorted(s)
+    data["updated_at"] = date.today().isoformat()
+    try:
+        with open(PUSHED, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        log("✗ 写 pushed_ids.json 失败: %s" % e)
 
 
 def post(webhook, payload):
@@ -231,75 +251,35 @@ def main():
         log("✓ 已推送 %s [%s] %s" % (it["date"], db["cats"][it["cat"]]["name"], it["title"]))
 
     if sent:
+        ids = [i["id"] for i in picks]
+        record_pushed(ids)
+        # 本地运行：更新配置状态横幅 + 重新烘焙 HTML；云端运行由 workflow 负责写回仓库
         _st = load_json(STATUS, {}) or {}
-        _pushed = set(_st.get("pushed_ids") or [])
-        for i in picks:
-            _pushed.add(i["id"])
         _st["configured"] = True
         _st["last_push"] = datetime.now().strftime("%m-%d %H:%M")
-        _st["last_items"] = [i["id"] for i in picks]
-        _st["pushed_ids"] = sorted(_pushed)
-        with open(STATUS, "w", encoding="utf-8") as f:
-            json.dump(_st, f, ensure_ascii=False, indent=2)
-        # 把“已发布”状态烘焙进日历 HTML，打开即正确显示，不再依赖运行时 fetch
+        _st["last_items"] = ids
         try:
-            import subprocess
-            subprocess.run([sys.executable, os.path.join(ROOT, "build", "merge.py")], check=False)
+            with open(STATUS, "w", encoding="utf-8") as f:
+                json.dump(_st, f, ensure_ascii=False, indent=2)
         except Exception:
             pass
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            log("· 云端运行：已写入 pushed_ids.json，将由 workflow 写回仓库")
+        else:
+            # 本地：把“已发布”状态烘焙进日历 HTML，打开即正确显示
+            try:
+                import subprocess
+                subprocess.run([sys.executable, os.path.join(ROOT, "build", "merge.py")], check=False)
+            except Exception:
+                pass
     elif not webhook:
         with open(STATUS, "w", encoding="utf-8") as f:
             json.dump({"configured": False}, f, ensure_ascii=False, indent=2)
 
 
 def main_handler(event, context):
-    """腾讯云 SCF 入口：定时触发器在「附加信息」里传 {"mode":"push"} 或 {"mode":"remind"}。
-    零第三方依赖，标准 Python3 运行时直接运行。"""
-    # event 可能是 dict / JSON 字符串 / 空
-    try:
-        if isinstance(event, str):
-            try:
-                event = json.loads(event)
-            except Exception:
-                event = {}
-        if not isinstance(event, dict):
-            event = {}
-    except Exception:
-        event = {}
-    mode = (event or {}).get("mode", "push")
-
-    cfg = load_json(CONFIG, {}) or {}
-    webhook = (os.environ.get("WEBHOOK") or cfg.get("webhook") or "").strip()
-    db = load_json(CONTENT)
-    if not db:
-        return {"ok": False, "msg": "内容库缺失"}
-    if not webhook:
-        return {"ok": False, "msg": "未配置 webhook"}
-
-    if mode == "remind":
-        t = date.today()
-        tomorrow = (t + timedelta(days=1)).isoformat()
-        picks = [i for i in db["items"] if i["date"] == tomorrow]
-        if not picks:
-            return {"ok": True, "msg": "明日无排期，跳过"}
-        card = build_remind(db, picks, upcoming_extras(db["items"], tomorrow))
-        post(webhook, {"msgtype": "markdown", "markdown": {"content": card}})
-        return {"ok": True, "msg": "已推送明日预告 %s（%d 条）" % (tomorrow, len(picks))}
-
-    # 默认 push：发当天内容
-    target = date.today().isoformat()
-    picks = pick(db["items"], target)
-    if not picks:
-        return {"ok": True, "msg": "%s 无排期，跳过" % target}
-    sent = 0
-    for it in picks:
-        card = build_card(db, it, upcoming_extras(db["items"], target) if it["kind"] == "friday" else [])
-        text = build_text(it)
-        post(webhook, {"msgtype": "markdown", "markdown": {"content": card}})
-        post(webhook, {"msgtype": "text", "text": {"content": text}})
-        sent += 1
-        log("✓ 云端已推送 %s [%s] %s" % (it["date"], db["cats"][it["cat"]]["name"], it["title"]))
-    return {"ok": True, "msg": "已推送 %d 条" % sent}
+    # 已废弃：本项目改用 GitHub Actions（push.py 的 __main__ 入口），不再需要云函数入口。
+    raise NotImplementedError("main_handler 已废弃，请使用 GitHub Actions 工作流调用 `python push.py`")
 
 
 if __name__ == "__main__":
