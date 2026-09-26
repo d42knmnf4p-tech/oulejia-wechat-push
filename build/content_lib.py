@@ -2,7 +2,7 @@
 """欧乐家 · 微信营销内容库（全年版：2026-08-14 ~ 2027-08-23）
 
 三条独立发送线：
-  ① 周五主推（每周五 10:00，仅在不与节气/节假日冲突的周五发送）：
+  ① 周五主推（每周五 09:30，仅在不与节气/节假日冲突的周五发送）：
      日常问候 / 安装效果 / 活动优惠 的固定轮换，内容绝不含任何节气或节日名称。
   ② 节气关怀（节气当天 09:30，SOL 线）：24 节气顺时关怀，用户提供的措辞。
   ③ 节假日问候（节日当天 09:30，EX 线）：中国所有节假日 + 传统节日 + 现代节日。
@@ -19,7 +19,7 @@ from datetime import date, timedelta
 HERE = os.path.dirname(os.path.abspath(__file__))
 ITEMS = []
 
-def add(id, date, cat, title, hook, content, tips, kind="friday", asset="", time="10:00"):
+def add(id, date, cat, title, hook, content, tips, kind="friday", asset="", time="09:30"):
     ITEMS.append({
         "id": id, "date": date, "time": time, "kind": kind,
         "cat": cat, "title": title, "hook": hook,

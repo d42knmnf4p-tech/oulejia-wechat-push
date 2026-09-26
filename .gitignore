@@ -8,3 +8,11 @@ push/_channel_test.txt
 # Python 缓存
 __pycache__/
 *.pyc
+
+# 云函数部署（含 webhook 密钥，由 tcb-func/deploy.py 动态生成后即时删除）
+cloudbaserc.json
+tcb-func/.cloudbaserc.json
+.env.local
+deploy/secrets.local.env
+tcb-func/push/push.log
+tcb-func/wechat-calendar/data/push_status.json
