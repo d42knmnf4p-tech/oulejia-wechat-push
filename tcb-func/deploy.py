@@ -87,14 +87,33 @@ def load_env_local():
 
 
 def env_list():
-    """返回 [{envId, packageName, ...}]。tcb env list --json 不带 alias 字段，只能按 envId 认。"""
+    """返回 [{envId, packageName, ...}]。tcb env list --json 不带 alias 字段，只能按 envId 认。
+
+    坑：tcb 3.7.x 的字段是 'envId'，3.8.4 改成 'EnvId'，硬编码任一都会 KeyError。
+    这里按候选键名逐个取，兼容两版 CLI。
+    """
     r = run(["tcb", "env", "list", "--json"])
     txt = out_text(r)
     try:
         data = json.loads(txt)
     except Exception:
         return []
-    return data.get("data") or []
+    envs = data.get("data") or []
+    if isinstance(envs, dict):            # 兜底：万一某版包成 {data: {list: [...]}}
+        for v in envs.values():
+            if isinstance(v, list):
+                envs = v
+                break
+    out = []
+    for e in envs:
+        if not isinstance(e, dict):
+            continue
+        eid = (e.get("envId") or e.get("EnvId") or e.get("EnvironmentId") or "").strip()
+        if not eid:
+            continue
+        e["envId"] = eid
+        out.append(e)
+    return out
 
 
 def ensure_env(arg, create, alias):
