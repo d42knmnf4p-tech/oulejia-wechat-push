@@ -86,6 +86,51 @@ def load_env_local():
     return env
 
 
+# 云函数要跑的完整运行时 = 主仓代码的一份副本。
+# 以前靠手工复制，改了 push/push.py 忘了同步 → 云函数跑的是旧代码，且部署不报错。
+# 这里在部署前强制覆盖，杜绝两份漂移。
+SYNC_MAP = [
+    ("push", "push", (".py",)),
+    ("wechat-calendar", "wechat-calendar", (".html", ".js", ".css", ".json")),
+]
+
+
+def sync_code_copy(env):
+    """把仓库里的运行时代码同步进 tcb-func/ 部署包。
+
+    只覆盖白名单后缀，忽略日志/推送状态等运行时产物，
+    并在结束后校验 push.py 两份内容一致。
+    """
+    import shutil
+
+    copied = []
+    for src_rel, dst_rel, exts in SYNC_MAP:
+        src = os.path.join(ROOT, src_rel)
+        dst = os.path.join(FUNC, dst_rel)
+        if not os.path.isdir(src):
+            print("  ! 跳过同步：源目录不存在 %s" % src_rel)
+            continue
+        for root, _dirs, files in os.walk(src):
+            for fn in files:
+                if not fn.endswith(exts):
+                    continue
+                s = os.path.join(root, fn)
+                d = os.path.join(dst, os.path.relpath(s, src))
+                os.makedirs(os.path.dirname(d), exist_ok=True)
+                shutil.copy2(s, d)
+                copied.append(os.path.relpath(d, ROOT))
+
+    main_py = os.path.join(ROOT, "push", "push.py")
+    func_py = os.path.join(FUNC, "push", "push.py")
+    if os.path.exists(main_py) and os.path.exists(func_py):
+        a = open(main_py, encoding="utf-8").read()
+        b = open(func_py, encoding="utf-8").read()
+        if a != b:
+            die("云函数副本 push/push.py 与主仓不一致。\n"
+                "    说明同步逻辑失效了，请检查 SYNC_MAP 或手动比对两个文件。")
+    print("  已同步 %d 个文件到部署包（push.py 一致性校验通过 ✓）" % len(copied))
+
+
 def env_list():
     """返回 [{envId, packageName, ...}]。tcb env list --json 不带 alias 字段，只能按 envId 认。
 
@@ -189,6 +234,8 @@ def main():
         "GITHUB_REPO": env.get("GITHUB_REPO", ""),
         "GITHUB_BRANCH": env.get("GITHUB_BRANCH", ""),
     }
+    sync_code_copy(env)
+
     cfg = {
         "version": "2.0",
         "envId": env_id,
